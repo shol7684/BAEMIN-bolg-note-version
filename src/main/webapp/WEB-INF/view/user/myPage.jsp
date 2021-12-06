@@ -3,11 +3,11 @@
 <%@ include file="/WEB-INF/view/include/link.jsp" %>
 <link rel="stylesheet" href="/css/layout/nav.css">
 <link rel="stylesheet" href="/css/user/myPage.css">
-
+ 
 <%@ include file="/WEB-INF/view/include/header.jsp" %>
-
+ 
 	<div class="wrap"> 
-
+ 
 	    <section class="title">
 	        <h1>my 배민</h1> 
 	    </section>
@@ -24,6 +24,7 @@
 	                    
 	                    
 	                    <c:if test="${!empty SPRING_SECURITY_CONTEXT }">
+                            <c:set var="nickname" value="${SPRING_SECURITY_CONTEXT.authentication.principal.user.nickname }" />
 	                        <a href="/user/myInfo"><span class="nickname" data-nickname=${nickname } >${nickname }</span></a>
 							<button type="button" class="logout">로그아웃</button>
 	                    </c:if>
@@ -97,22 +98,22 @@
     </div>
     
     <!-- 콘텐츠 -->
-
-
+ 
+ 
     <!-- 하단 메뉴 -->
 	<%@ include file="/WEB-INF/view/include/nav.jsp" %>
     <!-- 하단 메뉴 -->
-
+ 
     <!-- 푸터 -->
     <%@ include file="/WEB-INF/view/include/footer.jsp" %>
     <!-- 푸터 -->
-
+ 
     <script type="text/javascript">
-
+ 
         $(".updating").click(function () {
             swal("업데이트 준비 중 입니다");
         })
-
+ 
         $(".logout").click(function () {
             location.href = "/logout";
         })
@@ -128,7 +129,7 @@
         }
         
     </script>
-
+ 
 </body>
-
+ 
 </html>

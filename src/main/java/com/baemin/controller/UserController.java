@@ -1,21 +1,33 @@
 package com.baemin.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
-import org.springframework.remoting.soap.SoapFaultException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.baemin.dto.Join;
+import com.baemin.service.UserService;
 
 @Controller
 public class UserController {
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private BCryptPasswordEncoder pwdEncoder;
+	
 	
 	@GetMapping("/myPage")
 	public String myPage() {
@@ -37,25 +49,53 @@ public class UserController {
 	
 	@PostMapping("/join")
 	public String joinProc(@Valid Join join, BindingResult bindingResult, Model model) {
-		System.out.println(join);
-		
 		if(bindingResult.hasErrors()) {
-			System.out.println("에러");
 			List<FieldError> list = bindingResult.getFieldErrors();
-			System.out.println(list.get(0).getField());;
-			System.out.println(list.get(0).getDefaultMessage());
-			
-			model.addAttribute("msg", list.get(0).getDefaultMessage());
-
-			
-			System.out.println(list);
+			Map<String, String> errorMsg = new HashMap<>();
+			for(int i=0;i<list.size();i++) {
+				String field = list.get(i).getField(); 
+				String message = list.get(i).getDefaultMessage(); 
+				errorMsg.put(field, message);
+			}
+			model.addAttribute("errorMsg", errorMsg);
 			return "user/join";
-			
-		} else {
-			System.out.println("에러없음");
 		}
 		
+		String encPwd = pwdEncoder.encode(join.getPassword());
+		join.setPassword(encPwd);
+		userService.join(join);
 		
-		return "redirect:/join";
+		return "redirect:/login";
 	}
+	
+	
+	
+	@ResponseBody
+	@GetMapping("/overlapCheck")
+	public int overlapCheck(String value, String valueType) {
+//		value = 중복체크할 값
+//		valeuType = username, nickname
+		System.out.println(value);
+		System.out.println(valueType);
+		int count = userService.overlapCheck(value, valueType);
+		
+		System.out.println(count);
+		return count;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
 }
