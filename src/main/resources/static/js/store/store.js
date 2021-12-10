@@ -1,4 +1,3 @@
-/*
 $(document).ready(function() {
 	const category = $(".category").data("category");
 	const address1 = $(".address1").val();
@@ -54,7 +53,6 @@ $(document).ready(function() {
 			.fail(function(data, textStatus, errorThrown){
 				swal("다시 시도해주세요");
 			})	
-			
 		} // if
 	}) // scroll
 	
@@ -83,8 +81,6 @@ $(".option li").click(function() {
 	.done(function(result, textStatus, xhr){
 		// 페이지 초기화
 		run = false;
-		
-		
 		const storeHtml = storeList(result);
 		$(".box ul.store").html(storeHtml);
 		
@@ -168,4 +164,4 @@ function storeList(result){
 
 
 
-});*/
+});

@@ -9,3 +9,4 @@
     </div>
 </footer>
 
+<script src="/js/util/util.js"></script>
