@@ -74,9 +74,9 @@ public class OrderController {
 	@GetMapping({"/orderList", "/orderList/{page}"})
 	public String orderList(@AuthenticationPrincipal LoginService user, Model model, @PathVariable(required = false) Integer page) {
 		if (user == null) {
-			System.out.println("비로그인");
+			System.out.println("주문목록 비로그인");
 		} else {
-			System.out.println("로그인");
+			System.out.println("주문목록 로그인");
 			long userId = user.getUser().getId();
 
 			Page p = new Page(page);
@@ -91,7 +91,6 @@ public class OrderController {
 			for (int i=0;i<orderList.size();i++) {
 				cartList.add(FoodInfoFromJson.foodInfoFromJson(orderList.get(i).getFoodInfo()));
 			}
-			System.out.println("목록 수 = " + orderList.get(0).getListCount());
 			p.totalPage(orderList.get(0).getListCount());
 			model.addAttribute("page", p);
 			model.addAttribute("user", user.getUser());

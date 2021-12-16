@@ -1,12 +1,10 @@
 package com.baemin.controller;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,6 +24,8 @@ import com.baemin.dto.Store;
 import com.baemin.dto.StoreDetail;
 import com.baemin.login.LoginService;
 import com.baemin.service.StoreService;
+import com.baemin.util.CookieManager;
+import com.baemin.util.Page;
 import com.baemin.util.UploadFile;
 
 @Controller
@@ -58,10 +58,20 @@ public class StoreController {
 	
 	
 	@GetMapping("/store/detail/{id}")
-	public String storeDetail(@PathVariable long id, Model model, @AuthenticationPrincipal LoginService user) {
+	public String storeDetail(@PathVariable long id, Model model, @AuthenticationPrincipal LoginService user) throws Exception {
 		long userId = 0;
 		if(user != null) {
 			userId = user.getUser().getId();
+		} else {
+			CookieManager cm = new CookieManager();
+			String likesList  = cm.findCookie("LIKES_LIST");
+			if(likesList == null ) {
+				model.addAttribute("isLikes", false);
+			} else {
+				String[] arr = likesList.split(", ");
+				boolean isLikes = Arrays.asList(arr).contains(id+"");
+				model.addAttribute("isLikes", isLikes);
+			}
 		}
 		
 		StoreDetail storeDetail = storeService.storeDetail(id, userId);
@@ -119,20 +129,79 @@ public class StoreController {
 	// 찜하기
 	@ResponseBody
 	@PostMapping("/store/likes")
-	public long likes(long id, String likes, @AuthenticationPrincipal LoginService user, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
-		System.out.println("찜하기id =  " + id + " " + likes);
+	public long likes(long id, String likes, @AuthenticationPrincipal LoginService user) throws Exception {
+		
 		long userId = 0;
 		if (user == null) {
-			
+			System.out.println("찜하기 비회원");
+			new CookieManager().likes(id);
 			
 		} else {
 			System.out.println("찜하기 회원");
 			userId = user.getUser().getId();
 			storeService.likes(id, likes, userId);
 		}
-
 		return userId;
 	}
 
+	
+	
+	// 찜한 가게 목록
+	@GetMapping("/likes/store")
+	public String likes(Model model, @AuthenticationPrincipal LoginService user) throws Exception {
+		long userId = 0;
+		List<Store> likesList = new ArrayList<>();
+		if (user == null) {
+			CookieManager cm = new CookieManager();
+			String likes = cm.findCookie("LIKES_LIST");
+			
+			if(likes != null && !"".equals(likes)) {
+				likesList = storeService.likesListNonUser(likes);
+			}
+			
+		} else {
+			userId = user.getUser().getId();
+			likesList = storeService.likesList(userId);
+		}
+		model.addAttribute("likesList", likesList);
+		return "/store/likes";
+	}
+	
+	
+	
+	@GetMapping({"/store/search", "/store/search/{page}"})
+	public String search(Integer address1, String keyword, @PathVariable(required = false) Integer page, Model model) throws Exception {
+
+		CookieManager cm = new CookieManager();
+		if(keyword != null) {
+			LinkedHashSet<String> keywordList = cm.saveKeyword(keyword);
+			model.addAttribute("keywordList", keywordList);
+			
+			Page p = new Page(page);
+			List<Store> storeList = storeService.storeSearch(keyword, address1 / 100, p);
+			model.addAttribute("keyword", keyword);
+			
+			if(storeList.size() == 0) {
+				model.addAttribute("noSearch", true);
+			} else {
+				System.out.println("size = " + storeList.size());
+				p.totalPage(storeList.get(0).getListCount());
+				model.addAttribute("page", p);
+				model.addAttribute("storeList", storeList);
+			}
+		} else {
+			String key = cm.findCookie("KEYWORD");
+			if(key != null) {
+				String[] keywordList = key.split(", ");
+				model.addAttribute("keywordList", keywordList);
+			}
+		}
+
+		return "store/search";
+	}
+	
+	
+	
+	
 	
 }

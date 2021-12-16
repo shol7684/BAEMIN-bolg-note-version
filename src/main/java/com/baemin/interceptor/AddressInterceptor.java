@@ -23,7 +23,6 @@ public class AddressInterceptor implements HandlerInterceptor {
 		
 		if(addMap == null) {
 			Cookie[] cookies = request.getCookies();
-			System.out.println(cookies.length);
 			for (int i = 0; i < cookies.length; i++) {
 				if(cookies[i].getName().equals("BMaddress")) {
 					Gson gson = new Gson();

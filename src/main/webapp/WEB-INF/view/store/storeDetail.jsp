@@ -5,7 +5,7 @@
  <div id="wrap">
     <nav>
     	<c:set var="info" value="${store.storeInfo }" />
-        <h1 id="store_name" data-store_name="${info.storeName }" >${info.storeName }</h1>
+        <h1 class="store_name" data-store_name="${info.storeName }" >${info.storeName }</h1>
         <div id="is_open" data-is_open="${store.storeInfo.isOpen }"></div>
 		<div class="inf">
 			<div>
@@ -26,7 +26,7 @@
 				</span><br>
                    	
                 <c:choose>
-                	<c:when test="${info.isLikes == 1 }">
+                	<c:when test="${info.isLikes == 1 || isLikes }">
                 		<span><i class="fas fa-heart" ></i> 찜 </span>
                 	</c:when>
                 	
@@ -39,13 +39,38 @@
                   
 			</div>
                	<div>
-               		<span class="store_review_count" data-review_count="${info.reviewCount }"> 리뷰 ${info.reviewCount }</span>
-               		<span>사장님 댓글 ${info.bossCommentCount }</span>
+               		<span> 
+	               		<span>리뷰</span>
+	               		<span class="store_review_count" data-review_count="${info.reviewCount }">${info.reviewCount }</span>
+	               		<span>사장님 댓글</span>
+	               		<span>${info.bossCommentCount }</span>
+	               	</span>
             	</div>
                 
-               	<div id="min_delevery" data-min_delevery="${info.minDelevery }">최소주문금액 <fm:formatNumber value="${info.minDelevery }" pattern="###,###" />원</div>
-               	<div>예상 배달시간 ${info.deleveryTime  }분</div>
-               	<div id="delevery_tip" data-delevery_tip="${info.deleveryTip }">배달팁 <fm:formatNumber value="${info.deleveryTip }" pattern="###,###" />원</div>
+               	<div>
+               		<span>최소주문금액</span>  
+               		<span id="min_delevery" data-min_delevery="${info.minDelevery }"><fm:formatNumber value="${info.minDelevery }" pattern="###,###" /></span><span>원</span>
+              	</div>
+              	
+               	<div>
+               		<span>예상 배달시간</span>
+               		<span id="delevery_time">${info.deleveryTime }</span><span>분</span>
+				</div>
+               		
+               		
+               	<div>
+               		<span>배달팁</span>
+               		<span id="delevery_tip" data-delevery_tip="${info.deleveryTip }"><fm:formatNumber value="${info.deleveryTip }" pattern="###,###" /></span><span>원</span> 
+             	</div>
+               	
+               	
+           		<c:if test="${adminPage}"> 
+                	<div id="admin_button_box" data-is_admin="true">
+	                  	<button class="inf_modify">가게정보 수정</button>
+	                  	<button class="add_menu">메뉴 추가</button>
+	                  	<button class="delete_menu">메뉴 삭제</button>
+                	</div>
+               </c:if>
 		</div>
     </nav>
 
@@ -106,12 +131,18 @@
         <ul class="menu">
         	 <c:forEach items="${store.foodList }" var="foodList" >
 	            <li>
+	              <c:if test="${adminPage}">
+		                <label class="menu_delete_label">
+		                	<i class="fas fa-check-square" ></i>
+		                	<input type="checkbox" class="menu_delete_checkbox" name="deleteNumber" value="${foodList.id }">
+	                	</label>
+	                </c:if>
+	                
 	                <div class="menu_box">
 	                    <div>
-							<h2>${foodList.foodName } </h2>
+							<h2 class="store_food_name">${foodList.foodName } </h2>
 		                    
-   		                    <fm:formatNumber value="${foodList.foodPrice }" pattern="###,###" />원 
-		                    <input type="hidden" value="${foodList.storeId }" name="storeId" >
+   		                    <span class="store_food_price"><fm:formatNumber value="${foodList.foodPrice }" pattern="###,###" /></span><span>원</span> 
 				            <input type="hidden" value="${foodList.id }" name="foodId" class="food_id"   >
 				            <input type="hidden" value="${foodList.foodName }" name="foodName" class="food_name" >
 				            <input type="hidden" value="${foodList.foodPrice }" name="foodPrice" class="food_price"   >
@@ -151,7 +182,7 @@
             <li>
             	<div>
 	               <h2>가게 소개</h2>
-	               <div>${info.storeDes }</div>
+	               <div id="store_des">${info.storeDes }</div>
                </div>
             </li>
             
@@ -167,12 +198,17 @@
 	            	</div>
 	            	
 	            	<div class="info_detail">
-	            		<div>${info.storeName }</div>
+	            		<div class="store_name">${info.storeName }</div>
 	            		<div>
-	            			<span><fm:formatNumber value="${info.openingTime }" minIntegerDigits="2" />시 ~</span>
-	            			<span><fm:formatNumber value="${info.closingTime }" minIntegerDigits="2" />시 </span>
+	            			<span id="store_opening_time" data-opening_time=${info.openingTime }>
+	            				<fm:formatNumber value="${info.openingTime }" minIntegerDigits="2" />시
+            				</span>
+	            			<span>~</span>
+	            			<span id="store_closing_time" data-closing_time=${info.closingTime }>
+	            				<fm:formatNumber value="${info.closingTime }" minIntegerDigits="2" />시
+            				</span>
             			</div>
-	            		<div>${info.storePhone }</div>
+	            		<div id="store_phone"> ${info.storePhone }</div>
 	            		
 	            	</div>
             	</div>
@@ -297,7 +333,23 @@
 			                	<span><fm:formatDate value="${reviewList.regiDate }" pattern="yyyy-MM-dd" /> </span>
 			                </div>
 	                	</div>
+	                	
+	                	<c:if test="${adminPage}">
+			                 <div>
+			                
+			                	<c:if test="${!empty reviewList.bossComment}">
+			                		<button class="review_btn comment_modify">댓글 수정하기</button>
+			                	</c:if>
+			                	
+			                	<c:if test="${empty reviewList.bossComment}">
+			                		<button class="review_btn comment_write" >답장하기</button>
+			                	</c:if> 
+			                	<input type="hidden" value="${reviewList.orderNum }" class="order_num">
+			                </div>
+		                </c:if>
 	                </div> 
+	                
+	                
 		                
 	                <div>
 		                <c:if test="${!empty reviewList.reviewImg }">
@@ -343,8 +395,6 @@
 	
 	<input type="hidden" value="${info.id }" id="store_id">
 	<input type="hidden" value="${info.category }" id="store_category">  
-	<input type="hidden" value="${info.openingTime }" id="store_opening_time"> 
-	<input type="hidden" value="${info.closingTime }" id="store_closing_time"> 
 	
 	<input type="hidden" value="${BMaddress.address2 }" id="delevery_address">
 	
@@ -355,7 +405,7 @@
     	
 		var storeAddress = $("#store_address").data("address");
         
-    	var storeName = $("#store_name").data("store_name");
+    	var storeName = $(".store_name").data("store_name");
     	
     	var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
     	

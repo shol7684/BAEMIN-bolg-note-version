@@ -81,6 +81,29 @@ public class StoreServiceImp implements StoreService {
 		} else {
 			storeDAO.deleteLikes(map);
 		}
+	}
+	
+	
+	@Override
+	public List<Store> likesList(long userId) {
+		return storeDAO.likesList(userId);
+	}
+
+
+	@Override
+	public List<Store> likesListNonUser(String likes) {
+		return storeDAO.likesListNonUser(likes);
+	}
+
+
+	@Override
+	public List<Store> storeSearch(String keyword, int address, Page p) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("keyword", keyword);
+		map.put("address", address);
+		map.put("firstList", p.getFirstList());
+		map.put("lastList", p.getLastList());
 		
+		return storeDAO.storeSearch(map);
 	}
 }

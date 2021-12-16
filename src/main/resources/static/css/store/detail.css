@@ -44,6 +44,7 @@ nav .inf button {
 
 nav .inf .store_review_count:after {
 	content: '|';
+	margin-left: 3px;
 }
 
 /* -------------- 상단 가게 정보 -------------- */
@@ -391,6 +392,7 @@ main .comment .score_info .score_count .review_count {
 
 main .comment .boss_comment {
 	margin-bottom: 10px;
+	word-break: break-word;
 }
 
 main .comment li {

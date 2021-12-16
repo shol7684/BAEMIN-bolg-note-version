@@ -91,7 +91,6 @@ function closeModal() {
 	$(".modal_box").scrollTop(0);
 	$("body").css("overflow", "visible");
 	$(".modal input[type='checkBox']").prop("checked", false);
-	
 	$("#amount").val(1);
 };
 

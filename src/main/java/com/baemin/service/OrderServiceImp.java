@@ -121,11 +121,6 @@ public class OrderServiceImp implements OrderService {
 		map.put("userId", userId);
 		map.put("firstList", p.getFirstList());
 		map.put("lastList", p.getLastList());
-		
-		System.out.println("첫번째 목록 = " + p.getFirstList() + " 마지막 목록 = " + p.getLastList());
-		System.out.println("첫번째 = " + p.getFirstPage() + " 마지막 = " + p.getLastPage() );
-		System.out.println("이전페이지 = " + p.getPrevPage());
-		System.out.println("다음페이지 = " + p.getNextPage());
 		return orderDAO.orderList(map);
 	}
 	

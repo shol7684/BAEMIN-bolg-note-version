@@ -6,7 +6,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class Page {
-	private int view = 3;	// 화면에 출력할 목록 수	
+	private int view = 10;	// 화면에 출력할 목록 수	
 	private int firstList;	// 페이지 첫번째 목록
 	private int lastList;	// 페이지 마지막 목록
 	

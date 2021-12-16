@@ -40,4 +40,6 @@ public class Store {
 	private String isOpen;	// 오픈중?
 	
 	private int isLikes;	// 0 찜x, 1 찜o 	
+	
+	private int listCount;	// 매장 수
 }

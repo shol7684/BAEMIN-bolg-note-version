@@ -19,6 +19,7 @@ header img {
 	top: 50%;
 	right: 20px;
 	transform: translateY(-50%);
+	z-index: 10;
 }
 
 
@@ -33,8 +34,8 @@ header img {
 	position: relative;
 	width: 24px;
 	height: 18px;
-	display: none;
 	cursor: pointer;
+/* 	display: none; */
 }
 
 .menu_tab span {
@@ -71,6 +72,52 @@ header img {
 	transform: translateY(-8px) rotate(45deg);
 }
 
+header #menu {
+	background: rgba(0, 0, 0, 0.9);
+	width: 400px;
+	height: 100vh;
+	position: fixed;
+	right: -400px; 
+	top: 0;
+	z-index: 9;
+	transition: all 0.4s;
+}
+
+header #menu.active {
+	right: 0;
+}
+
+header #menu .box {
+	margin-top: 80px;
+}
+
+header #menu .box a {
+	color: #fff;
+	display: block;
+	width: 100%;
+	height: 50px;
+	line-height: 50px;
+	font-size: 2rem;
+	padding-left: 25px;
+}
+
+header #menu .box a:hover {
+	background: #eee;
+	color: #000;
+}
+
+header #menu_bg {
+	background: rgba(0, 0, 0, 0.1);
+	width: 100vw;
+	height: 100vh;
+	position: fixed;
+	z-index: 8;
+	top: 0;
+	right: 0;
+	display: none;
+}
+
+
 @media ( max-width :1250px) {
 	#header {
 		width: 99%;
@@ -85,5 +132,14 @@ header img {
 	}
 	header {
 		height: 60px;
+	}
+	
+	header #menu {
+		width: 300px; 
+		right: -300px;
+	}
+	
+	header #menu .box {
+		margin-top: 60px;
 	}
 }
