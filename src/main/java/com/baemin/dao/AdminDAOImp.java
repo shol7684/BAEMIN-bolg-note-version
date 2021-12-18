@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.baemin.dto.Food;
+import com.baemin.dto.OrderCancle;
 import com.baemin.dto.OrderList;
+import com.baemin.dto.Sales;
+import com.baemin.dto.SalesToday;
 import com.baemin.dto.Store;
 
 @Repository
@@ -24,6 +27,8 @@ public class AdminDAOImp implements AdminDAO {
 		map.put("userId", userId);
 		map.put("info", info);
 		map.put("point", point);
+		
+		System.out.println(map);
 		
 		return sql.insert("admin.pointUpdate", map); 
 	}
@@ -88,6 +93,39 @@ public class AdminDAOImp implements AdminDAO {
 	}
 	
 	
+	@Override
+	public void orderAccept(String orderNum, int time, long userId) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("orderNum", orderNum);
+		map.put("time", time);
+		map.put("userId", userId);
+		sql.update("admin.orderAccept", map);
+	}
+
+	@Override
+	public void orderCancle(OrderCancle orderCancle) {
+		sql.update("admin.orderCancle", orderCancle);
+	}
+
+	@Override
+	public void orderComplete(Map<String, Object> map) {
+		sql.update("admin.orderComplete", map);
+	}
+
+
+	
+	@Override
+	public List<Sales> sales(String time, String month) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("time", time);
+		map.put("month", month);
+		return sql.selectList("admin.salesMonth", map);
+	}
+
+	@Override
+	public List<SalesToday> salesToday(long storeId) {
+		return sql.selectList("admin.salesToday", storeId);
+	}
 	
 	
 	

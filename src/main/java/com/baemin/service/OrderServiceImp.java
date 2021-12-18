@@ -42,8 +42,6 @@ public class OrderServiceImp implements OrderService {
 		List<Integer> foodPriceList = orderDAO.foodPriceList(cart);
 		List<Integer> optionPriceList = orderDAO.optionPriceList(cart);
 		int deleveryTip = orderDAO.getDeleveryTip(cartList.getStoreId());
-		System.out.println("foodPriceList = " + foodPriceList);
-		System.out.println("optionPriceList = " + optionPriceList);
 		
 		int sum = 0;
 		
@@ -62,9 +60,6 @@ public class OrderServiceImp implements OrderService {
 	@Override
 	public String order(CartList cart, OrderInfo info, LoginService user, HttpSession session) {
 		Gson gson = new Gson();
-		
-		System.out.println("info = " + info);
-		
 		int total = cart.getCartTotal();
 		
 		info.setStoreId(cart.getStoreId());
@@ -77,16 +72,16 @@ public class OrderServiceImp implements OrderService {
 		}
 		
 		List<Cart> cartList = cart.getCart();
-		System.out.println("cartList =- " + cartList);
 		OrderDetail[] detail = new OrderDetail[cartList.size()];
 		
 		
 		for(int i=0;i<detail.length;i++) {
-			System.out.println("cartList = " + cartList.get(i));
-			String cartJSON = gson.toJson(cartList.get(i));
+			String cartJSON = gson.toJson(cartList.get(i)).replaceAll("[\\[\\]]", "");
+			
+			System.out.println(cartJSON);
+			
 			detail[i] = new OrderDetail(info.getOrderNum(), cartJSON);
 		}
-		
 		orderDAO.order(info);
 		orderDAO.orderDetail(detail, userId);
 		

@@ -34,11 +34,10 @@ public class OrderController {
 	private OrderService orderService;
 	
 	
-	@GetMapping("/order")
-	public String order(HttpSession session, Model model, @AuthenticationPrincipal LoginService user) {
+	@GetMapping("/order/{storeId}")
+	public String order(@PathVariable long storeId ,HttpSession session, Model model, @AuthenticationPrincipal LoginService user) {
 
 		CartList cartList = (CartList) session.getAttribute("cartList");
-
 		model.addAttribute("cartList", cartList);
 
 		if (user != null) {

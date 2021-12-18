@@ -34,7 +34,6 @@ public class AdminAOP {
 		Object[] args = j.getArgs();
 		if(args.length > 0) {
 			Object arg = args[0];
-			System.out.println("0 = " + arg);
 			
 			if(arg instanceof Long) {
 				storeId = (long) arg;
@@ -47,7 +46,7 @@ public class AdminAOP {
 		if(!isMyStore(storeId)) { 
 			System.out.println("aop 에러");
 			return new ResponseEntity<Object>(HttpStatus.UNAUTHORIZED);
-			}
+		}
 		Object returnObj = j.proceed();
 		return returnObj;
     }
@@ -64,6 +63,7 @@ public class AdminAOP {
 			LoginService user = (LoginService) sc.getAuthentication().getPrincipal();
 			long userId = user.getUser().getId();
 			storeIdList = adminService.getMyStoreId(userId);
+			session.setAttribute("myStore", storeIdList);
 		} 
 		
 		if(storeIdList.size() == 0) {

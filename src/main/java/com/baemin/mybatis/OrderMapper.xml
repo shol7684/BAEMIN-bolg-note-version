@@ -39,6 +39,11 @@
 	<insert id="order">
 		<if test="userId == 0">
 			INSERT INTO BM_ORDER_NON_USER (
+		</if>
+		
+		<if test="userId != 0">
+			INSERT INTO BM_ORDER_USER (
+		</if>
 			    ORDER_NUM
 			    ,STORE_ID 
 			    ,USER_ID 
@@ -51,7 +56,7 @@
 			    ,USED_POINT 
 			    ,REQUEST 
 		    ) VALUES (
-			    ${orderNum }
+			    #{orderNum }
 			    ,#{storeId }
 			    ,#{userId }
 			    ,#{payMethod }
@@ -63,36 +68,6 @@
 			    ,#{usedPoint } 
 			    ,#{request } 
 		    )
-		</if>
-		
-		
-		<if test="userId != 0">
-			INSERT INTO BM_ORDER_USER (
-			     ORDER_NUM
-			    ,STORE_ID 
-			    ,USER_ID 
-			    ,PAY_METHOD 
-			    ,PHONE
-			    ,DELEVERY_ADDRESS1
-			    ,DELEVERY_ADDRESS2
-			    ,DELEVERY_ADDRESS3
-			    ,TOTAL_PRICE 
-			    ,USED_POINT 
-			    ,REQUEST 
-		    ) VALUES (
-			    ${orderNum }
-			    ,#{storeId }
-			    ,#{userId }
-			    ,#{payMethod }
-			    ,#{phone }  
-			    ,#{deleveryAddress1 }
-			    ,#{deleveryAddress2 }
-			    ,#{deleveryAddress3 } 
-			    ,#{totalPrice } 
-			    ,#{usedPoint } 
-			    ,#{request } 
-		    )
-		</if>
 	</insert>
 	
 	

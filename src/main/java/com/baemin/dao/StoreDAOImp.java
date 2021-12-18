@@ -74,7 +74,6 @@ public class StoreDAOImp implements StoreDAO {
 	
 	@Override
 	public List<Store> likesListNonUser(String likes) {
-		System.out.println(likes);
 		return sql.selectList("store.likesListNonUser", likes);
 	}
 

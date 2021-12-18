@@ -1,10 +1,12 @@
 
 
 $(document).ready(function() {
+	const pathArr = location.pathname.split("/");
+	const storeId = pathArr[pathArr.length-1];
+
 	const minDelevery = Number($("#min_delevery").data("min_delevery"));
 	const deleveryTip = Number($("#delevery_tip").data("delevery_tip"));
-	const storeId = $("#store_id").val();
-	const storeName = $("#store_name").data("store_name");
+	const storeName = $(".store_name").data("store_name");
 	
 	const cart = (function(){
 		// 장바구니에 담긴 가게번호 (다른가게에서 담은 상품인지 확인) 
@@ -503,7 +505,7 @@ $(document).ready(function() {
 	
 	// 주문하기
 	$(".order_btn").click(function() {
-		location.href = "/order";
+		location.href = "/order/" + storeId;
 	});
 	// 모바일 주문하기
 	$(".m_cart_img_box").click(function() {
@@ -512,7 +514,7 @@ $(document).ready(function() {
 			alarm("메뉴를 추가해주세요");
 			return;
 		}
-		location.href = "/order";
+		location.href = "/order/" + storeId;
 	});
 	
 	

@@ -62,28 +62,29 @@
 	</update>
 	
 	
+	
 	<insert id="addMenu">
- 	<selectKey keyProperty="id" resultType="long" order="BEFORE" >
-		SELECT FOOD_ID_SEQ.NEXTVAL FROM DUAL
-	</selectKey>
-		INSERT INTO BM_FOOD (
-				ID
-				,STORE_ID
-				,FOOD_NAME
-				,FOOD_PRICE
-				,FOOD_DEC
-				,FOOD_IMG
-				,FOOD_THUMB
-			) VALUES (
-				#{id }
-				,#{storeId }
-				,#{foodName }
-				,#{foodPrice }
-				,#{foodDec }
-				,#{foodImg }
-				,#{foodThumb }
-			)
-	</insert>
+		<selectKey keyProperty="id" resultType="long" order="BEFORE" >
+		   SELECT FOOD_ID_SEQ.NEXTVAL FROM DUAL
+	   </selectKey>
+	   INSERT INTO BM_FOOD (
+			   ID
+			   ,STORE_ID
+			   ,FOOD_NAME
+			   ,FOOD_PRICE
+			   ,FOOD_DEC
+			   ,FOOD_IMG
+			   ,FOOD_THUMB
+		   ) VALUES (
+			   #{id }
+			   ,#{storeId }
+			   ,#{foodName }
+			   ,#{foodPrice }
+			   ,#{foodDec }
+			   ,#{foodImg }
+			   ,#{foodThumb }
+		   )
+   </insert>
 	
 	
 	<insert id="addMenuOption">
@@ -191,35 +192,139 @@
 	    FROM BM_ORDER_DETAIL_NON_USER N
 	    GROUP BY    ORDER_NUM
 	)
-	SELECT * FROM (
-	    SELECT ROWNUM RN, RESULT.* FROM (
-	        SELECT	COUNT1
-	            	,COUNT2
-	            	,O.*
-	            	,D.FOOD_INFO
-	            	,S.STORE_NAME
-	            	,S.DELEVERY_TIP
-	        FROM (
-	            SELECT  #{storeId } AS STORE_ID
-                        ,A.COUNT COUNT1
-                        ,B.COUNT COUNT2
-                FROM    (SELECT COUNT(*) COUNT FROM T_ORDER WHERE DELEVERY_STATUS = '주문접수 대기 중') A,
-                        (SELECT COUNT(*) COUNT FROM T_ORDER WHERE DELEVERY_STATUS LIKE '배달 준비 중%') B
-	        ) ORDER_COUNT
-	        LEFT JOIN   (SELECT * FROM T_ORDER WHERE DELEVERY_STATUS = #{list } ORDER BY ORDER_DATE) O
-	        ON          ORDER_COUNT.STORE_ID = O.STORE_ID
-	        LEFT JOIN   T_DETAIL D      
-	        ON          O.ORDER_NUM  = D.ORDER_NUM
-	        LEFT JOIN   BM_STORE S
-	        ON          O.STORE_ID = S.ID
-	    ) RESULT 
-	) 
-	WHERE RN BETWEEN #{firstList } AND #{lastList } 
+	 SELECT   COUNT1
+              ,COUNT2
+              ,O.*
+              ,D.FOOD_INFO
+              ,S.STORE_NAME
+              ,S.DELEVERY_TIP
+      FROM (
+		SELECT  #{storeId } AS STORE_ID
+                ,A.COUNT COUNT1
+                ,B.COUNT COUNT2
+        FROM    (SELECT COUNT(*) COUNT FROM T_ORDER WHERE DELEVERY_STATUS = '주문접수 대기 중') A,
+                (SELECT COUNT(*) COUNT FROM T_ORDER WHERE DELEVERY_STATUS LIKE '배달 준비 중%') B
+      ) ORDER_COUNT
+      LEFT JOIN
+      (SELECT * FROM
+          (SELECT ROWNUM RN, T.* FROM (
+              SELECT * FROM T_ORDER WHERE DELEVERY_STATUS LIKE '${list }%' ORDER BY ORDER_DATE) T ) 
+       WHERE RN BETWEEN #{firstList } AND #{lastList }
+       )O       
+      ON          ORDER_COUNT.STORE_ID = O.STORE_ID
+      LEFT JOIN   T_DETAIL D      
+      ON          O.ORDER_NUM  = D.ORDER_NUM
+      LEFT JOIN   BM_STORE S
+      ON          O.STORE_ID = S.ID
+      ORDER BY ORDER_DATE
 	</select>
 
 
 
+	<update id="orderAccept">
+		<if test="userId == 0">
+			UPDATE BM_ORDER_NON_USER SET
+		</if>
+		<if test="userId != 0">
+			UPDATE BM_ORDER_USER SET
+		</if>
+			DELEVERY_STATUS = '배달 준비 중(약 ${time}분 후에 도착)'
+			WHERE ORDER_NUM = #{orderNum }
+	</update>
 
+
+
+	<update id="orderCancle">
+		<if test="userId == 0">
+			UPDATE BM_ORDER_NON_USER SET 
+		</if>
+		<if test="userId != 0">
+			UPDATE BM_ORDER_USER SET
+		</if>
+			DELEVERY_STATUS = '주문 취소(${cancleReason })'
+			WHERE ORDER_NUM = #{orderNum }
+	</update>
+	
+	
+	
+	<update id="orderComplete">
+		<if test="userId == 0">
+			UPDATE BM_ORDER_NON_USER SET 
+		</if>
+		<if test="userId != 0">
+			UPDATE BM_ORDER_USER SET
+		</if>
+			DELEVERY_STATUS = '배달 완료'
+			WHERE ORDER_NUM = #{orderNum }
+	</update>
+	
+	
+	<select id="salesToday" resultType="SalesToday">
+	WITH T_ORDER AS (
+	    SELECT * FROM (
+	        SELECT ORDER_NUM, STORE_ID, ORDER_DATE, TOTAL_PRICE FROM BM_ORDER_USER
+	        UNION ALL
+	        SELECT ORDER_NUM, STORE_ID, ORDER_DATE, TOTAL_PRICE FROM BM_ORDER_NON_USER
+	    )
+	    WHERE   TO_CHAR(ORDER_DATE, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD')
+	    AND     STORE_ID = #{storeId }
+	),
+	T_DETAIL AS (
+	    SELECT  ORDER_NUM, 
+	            LISTAGG(FOOD_INFO, '/') FOOD_INFO
+	    FROM BM_ORDER_DETAIL_USER N
+	    GROUP BY    ORDER_NUM
+	    UNION ALL
+	    SELECT  ORDER_NUM, 
+	            LISTAGG(FOOD_INFO, '/') FOOD_INFO
+	    FROM BM_ORDER_DETAIL_NON_USER N
+	    GROUP BY    ORDER_NUM
+	)
+	SELECT      TOTAL_PRICE
+	            ,FOOD_INFO
+	FROM        T_ORDER O
+	LEFT JOIN   T_DETAIL D
+	ON          O.ORDER_NUM = D.ORDER_NUM
+	</select>
+	
+	
+	<select id="salesMonth" resultType="Sales">
+	SELECT	ORDER_DATE
+	   		,SUM(TOTAL_PRICE) TOTAL
+    FROM 	(SELECT		OU.ORDER_NUM
+        				,TO_CHAR(OU.ORDER_DATE, 'YYYY-MM-DD') ORDER_DATE
+        				,OU.TOTAL_PRICE
+    		FROM		BM_ORDER_USER OU
+	    	LEFT JOIN	BM_ORDER_DETAIL_USER OUD
+	    	ON			OU.ORDER_NUM = OUD.ORDER_NUM
+    UNION ALL
+	    	SELECT		ONU.ORDER_NUM
+	        			,TO_CHAR(ONU.ORDER_DATE, 'YYYY-MM-DD') ORDER_DATE
+	        			,ONU.TOTAL_PRICE
+	    	FROM		BM_ORDER_NON_USER ONU
+	    	LEFT JOIN	BM_ORDER_DETAIL_NON_USER ONUD
+	    	ON			ONU.ORDER_NUM = ONUD.ORDER_NUM
+	    	) 
+	WHERE 
+		<if test="time.equals('month') and month == null">
+   		ORDER_DATE BETWEEN TRUNC(SYSDATE, 'MM') AND LAST_DAY(SYSDATE)
+		</if>
+		
+		<if test="time.equals('month') and month != null">
+		ORDER_DATE BETWEEN TRUNC(TO_DATE('${month}-1'), 'MM') AND LAST_DAY('${month}-1')	
+		</if>
+		
+		<if test="time.equals('week')">
+		ORDER_DATE BETWEEN TRUNC(SYSDATE, 'IW') AND TRUNC(SYSDATE+7, 'IW')-1	
+		</if>
+		
+	GROUP BY ROLLUP(ORDER_DATE)
+	ORDER BY ORDER_DATE
+	</select>
+	
+	
+	
+	
 </mapper>
    
    

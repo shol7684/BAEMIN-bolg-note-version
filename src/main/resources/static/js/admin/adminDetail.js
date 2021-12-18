@@ -140,7 +140,7 @@ $(document).ready(function() {
 		
 		$.ajax({
 			url: "/admin/management/bossComment",
-			type: "POST",
+			type: "PATCH",
 			data: data
 		})
 		.done(function(result){
@@ -277,6 +277,7 @@ $(document).ready(function() {
 					$("#store_closing_time").text(String(result.closingTime).padStart(2,0)+"시");
 					$("#store_closing_time").data("closing_time", result.closingTime);
 					$("#store_phone").text(result.storePhone);
+					$("#store_category").val(result.category);
 					
 					closeModal();
 				})

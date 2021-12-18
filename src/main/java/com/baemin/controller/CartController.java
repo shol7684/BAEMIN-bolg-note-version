@@ -24,7 +24,6 @@ public class CartController {
 	public CartList addCart(Cart cart, long storeId, String storeName, int deleveryTip, HttpSession session) {
 
 		CartList cartList = (CartList) session.getAttribute("cartList");
-		
 		int totalPrice = FoodPriceCalc.foodPriceCalc(cart);
 		
 		System.out.println("카트 가격 계산 = " + totalPrice);
@@ -58,7 +57,6 @@ public class CartController {
 		
 		session.setAttribute("cartList", cartList);
 
-		System.out.println("cartList = " + cartList);
 		return cartList;
 	}
 	

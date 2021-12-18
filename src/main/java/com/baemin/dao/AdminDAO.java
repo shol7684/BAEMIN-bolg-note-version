@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.baemin.dto.Food;
+import com.baemin.dto.OrderCancle;
 import com.baemin.dto.OrderList;
+import com.baemin.dto.Sales;
+import com.baemin.dto.SalesToday;
 import com.baemin.dto.Store;
 
 public interface AdminDAO {
@@ -30,7 +33,17 @@ public interface AdminDAO {
 	List<Long> getMyStoreId(long userId);
 
 	List<OrderList> order(Map<String, Object> map);
-	
+
+	void orderAccept(String orderNum, int time, long userId);
+
+	void orderCancle(OrderCancle orderCancle);
+
+	void orderComplete(Map<String, Object> map);
+
+	List<Sales> sales(String time, String month);
+
+	List<SalesToday> salesToday(long storeId);
+
 
 
 }

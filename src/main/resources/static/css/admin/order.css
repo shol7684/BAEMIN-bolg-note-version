@@ -188,9 +188,11 @@ main {
 	header .menu_tab {
 		display: block;
 	}
+	section.tab {
+		margin-top: 20px;
+	}
 	aside {
 		width: 100%;
-		margin-top: 30px;
 	}
 	aside ul li:hover {
 		background: #30DAD9;
@@ -201,6 +203,8 @@ main {
 	aside ul li {
 		width: 50%;
 		height: 60px;
+		border-top: 1px solid #ddd;
+		border-bottom: 1px solid #ddd;
 	}
 	main {
 		width: 99%;

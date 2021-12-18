@@ -106,40 +106,6 @@ const listInfo = (function(){
 
 
 
-function updateCount(){
-	const waitCount = listInfo.getWaitcount() - 1;
-	const procCount = listInfo.getProcCount() + 1;
-	$(".wait_count").text(waitCount);
-	$(".processing_count").text(procCount);
-	listInfo.setWaitCount(waitCount);
-	listInfo.setProcCount(procCount);
-}
-
-
-
-function completeCount(){
-	const procCount = listInfo.getProcCount() - 1;
-	$(".processing_count").text(procCount);
-	listInfo.setProcCount(procCount);
-}
-
-
-/*
-function closeModal() {
-	$("#modal_bg").hide();
-	$(".modal").css("top", "100%");
-	$(".modal_box").scrollTop(0);
-	$("body").css("overflow", "visible");
-	$("input[type='checkBox']").prop("checked", false);
-	
-	$(".delevery_timer_modal li").removeClass("select");
-	$(".delevery_timer_modal section li[data-time=30]").addClass("select");
-	$(".order_cancle_modal li").removeClass("select");
-};
-*/
-
-
-
 
 function htmlWrite(result){
 	let html = "";
@@ -228,7 +194,6 @@ function orderList(){
 		}	
 	})
 	.done(function(result){
-		console.log(result);
 		
 		const count1 = result.orderList[0].count1;
 		const count2 = result.orderList[0].count2;
@@ -249,16 +214,14 @@ function orderList(){
 			listInfo.concatCartList(result.cartList);
 			listInfo.concatOrderList(result.orderList);
 		}
-		console.log("orderNum = ")
-		console.log(result.orderList[0].orderNum);
 		
 		if(result.orderList[0].orderNum != null) {
 			listInfo.setRunNextPage(false);
 		} 
 		
 	})
-	.fail(function(){
-		alert("에러가 발생했습니다");
+	.fail(function(data){
+		errMsg(data);
 	})	 
 }	
 
@@ -266,12 +229,12 @@ function orderList(){
 
 
 // 주문 완료 메세지 받기
-/*const socket = new SockJS('/websocket');
+const socket = new SockJS('/websocket');
 const stompClient = Stomp.over(socket);
 
 stompClient.connect({}, function() {
 
-	stompClient.subscribe('/topic/order-complete', function(message) {
+	stompClient.subscribe('/topic/order-complete/' + storeId, function(message) {
 		// 화면에 출력중인 view 갯수 
 		const list = $(".order_list li").length;
 		
@@ -280,7 +243,7 @@ stompClient.connect({}, function() {
 		}
 	});
 });
-*/
+
 
 
 
@@ -321,7 +284,7 @@ orderList();
 
 
 
-	
+// 주문접수 모달 
 $(document).on("click", ".order_accept", function(){
 	const modal = $(".order_accept_modal");
 	const orderIndex = $(this).parents("li").index();
@@ -352,21 +315,27 @@ $(document).on("click", ".order_accept", function(){
 	modal.find(".delevery_address").html(addressHtml);
 	modal.find(".request > div").text(request);
 	modal.find(".menu ul").html(food);
-	
+
 	openModal(modal);
 	
 	
 	 
+	 const timerModal = $(".delevery_timer_modal"); 
+	 
 	// 배달시간 설정 모달
 	$(".delevery_timer_btn").off().click(function(){
-		openModal($(".delevery_timer_modal"));
+		timerModal.find("li").removeClass("select");
+		timerModal.find("li[data-time=30]").addClass("select");
+		openModal(timerModal);
 	})
+ 		
  		
 	// 시간 설정	
 	$(".delevery_timer_modal li").off().click(function(){
-		$(".delevery_timer_modal li").removeClass("select");
+		timerModal.find("li").removeClass("select");
 		$(this).addClass("select");
 	})
+		
 		
 	// 주문수락 완료	
 	$(".accept").off().click(function(){
@@ -384,20 +353,17 @@ $(document).on("click", ".order_accept", function(){
 		}
 		
 		$.ajax({
-			url: "/admin/orderAccept",
+			url: "/admin/management/orderAccept",
 			data: data,
 			type: "PATCH"
 		})
 		.done(function(){
-			$(".delevery_timer_modal li").removeClass("select");
-			$(".delevery_timer_modal section li[data-time=30]").addClass("select");
-			updateCount();
 			orderList();
 			swal("주문접수완료");
 			closeModal();
 		})
-		.fail(function(){
-			swal("실패");
+		.fail(function(data){
+			errMsg(data);
 		})
 		
 	})
@@ -405,17 +371,18 @@ $(document).on("click", ".order_accept", function(){
 	
 	// 주문 거부하기
 	$(".order_cancle_btn").off().click(function(){
-		openModal($(".order_cancle_modal"));
+		const cancleModal = $(".order_cancle_modal");
+		openModal(cancleModal);
+		cancleModal.find("li").removeClass("select");
 		
 		let cancleReason = "";
 		
 		// 거부사유 선택
-		$(".order_cancle_modal li").off().click(function(){
-			$(".order_cancle_modal li").removeClass("select");
+		cancleModal.find("li").off().click(function(){
+			cancleModal.find("li").removeClass("select");
 			$(this).addClass("select");
 			cancleReason = $(this).data("reason");
 		})
-
 
 
 			
@@ -442,21 +409,20 @@ $(document).on("click", ".order_accept", function(){
 			}
 			
 			$.ajax({
-				url: "/admin/orderCancle",
+				url: "/admin/management/orderCancle",
 				type: "PATCH",
 				data: data
 			})
 			.done(function(){
 				orderList(); 
-				updateCount();
 				swal("취소완료");
-				// 결제 취소하기
+				// 결제 취소하기 추가
 				
 				closeModal();
 				
 			})
-			.fail(function(){
-				swal("실패");
+			.fail(function(data){
+				errMsg(data);
 			})
 		})
 	})
@@ -485,13 +451,12 @@ $(document).on("click", ".complete", function(){
 			return;
 		}
 		$.ajax({
-			url: "/admin/orderComplete",
+			url: "/admin/management/orderComplete",
 			type: "PATCH",
 			data: data
 		})
 		.done(function(result){
 			orderList();
-			completeCount();
 		})
 		.error(function(){
 			swal("에러");

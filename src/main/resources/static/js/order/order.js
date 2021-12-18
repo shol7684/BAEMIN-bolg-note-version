@@ -1,4 +1,7 @@
 
+const pathArr = location.pathname.split("/");
+const storeId = pathArr[pathArr.length-1];
+
 
 function menuReset(){
 	$(".temp_img_box").show();
@@ -100,7 +103,7 @@ function paymentCash(data){
         data: data,
 	})
 	.done(function() {
-		/*messageSend();*/
+		messageSend();
 			
         swal({
 			text: "주문이 완료되었습니다",
@@ -144,7 +147,7 @@ function paymentCash(data){
 
 
 // 관리자 페이지로 주문요청 메세지
-/*function messageSend() {
+function messageSend() {
 	let socket = new SockJS('/websocket');
 
 	let stompClient = Stomp.over(socket);
@@ -153,12 +156,10 @@ function paymentCash(data){
 		const message = {
 			message : "새 주문이 들어왔습니다"
 		}
-		stompClient.send("/message/order-complete-message", {}, JSON.stringify(message));
+		stompClient.send("/message/order-complete-message/" + storeId, {}, JSON.stringify(message));
 		stompClient.disconnect();
 	});
-}*/
-
-
+}
 
 	
 if($("#user_id").val() != ""){

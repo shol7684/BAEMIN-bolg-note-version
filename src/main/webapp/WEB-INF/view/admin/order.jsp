@@ -1,7 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/view/include/link.jsp" %>
-	
+<!-- sock js -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+<!-- STOMP -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>	
 <!-- 날짜 포맷 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" ></script>
 
@@ -61,7 +64,7 @@
 
 	
 
-<%-- <%@ include file="/WEB-INF/view/admin/modal_adminMain.jsp" %> --%>
+<%@ include file="/WEB-INF/view/modal/modal_adminOrder.jsp" %>
 
 
 

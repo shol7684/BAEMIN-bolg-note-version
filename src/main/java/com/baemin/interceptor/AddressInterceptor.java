@@ -23,12 +23,14 @@ public class AddressInterceptor implements HandlerInterceptor {
 		
 		if(addMap == null) {
 			Cookie[] cookies = request.getCookies();
-			for (int i = 0; i < cookies.length; i++) {
-				if(cookies[i].getName().equals("BMaddress")) {
-					Gson gson = new Gson();
-					addMap = gson.fromJson(URLDecoder.decode(cookies[i].getValue(), "UTF-8"), Map.class);
-					session.setMaxInactiveInterval(3600 * 3);
-					session.setAttribute("BMaddress", addMap);
+			if(cookies != null) {
+				for (int i = 0; i < cookies.length; i++) {
+					if(cookies[i].getName().equals("BMaddress")) {
+						Gson gson = new Gson();
+						addMap = gson.fromJson(URLDecoder.decode(cookies[i].getValue(), "UTF-8"), Map.class);
+						session.setMaxInactiveInterval(3600 * 3);
+						session.setAttribute("BMaddress", addMap);
+					}
 				}
 			}
 		}

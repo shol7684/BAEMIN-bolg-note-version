@@ -84,6 +84,7 @@ public class StoreController {
 	@ResponseBody
 	@GetMapping("/foodOption")
 	public List<FoodOption> menuDetail(int foodId) {
+		System.out.println("foodId = " + foodId);
 		List<FoodOption> foodOption = storeService.foodOption(foodId);
 		return foodOption;
 	}
