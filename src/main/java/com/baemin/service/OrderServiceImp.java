@@ -76,7 +76,7 @@ public class OrderServiceImp implements OrderService {
 		
 		
 		for(int i=0;i<detail.length;i++) {
-			String cartJSON = gson.toJson(cartList.get(i)).replaceAll("[\\[\\]]", "");
+			String cartJSON = gson.toJson(cartList.get(i));
 			
 			System.out.println(cartJSON);
 			

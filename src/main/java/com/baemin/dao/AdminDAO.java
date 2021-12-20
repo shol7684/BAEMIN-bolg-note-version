@@ -7,7 +7,7 @@ import com.baemin.dto.Food;
 import com.baemin.dto.OrderCancle;
 import com.baemin.dto.OrderList;
 import com.baemin.dto.Sales;
-import com.baemin.dto.SalesToday;
+import com.baemin.dto.SalesDetail;
 import com.baemin.dto.Store;
 
 public interface AdminDAO {
@@ -40,9 +40,15 @@ public interface AdminDAO {
 
 	void orderComplete(Map<String, Object> map);
 
-	List<Sales> sales(String time, String month);
+	List<Sales> sales(Map<String, Object> map);
 
-	List<SalesToday> salesToday(long storeId);
+	List<SalesDetail> salesDetail(long storeId, String date);
+
+	
+
+
+
+	
 
 
 

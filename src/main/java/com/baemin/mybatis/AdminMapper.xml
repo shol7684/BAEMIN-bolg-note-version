@@ -259,15 +259,23 @@
 	</update>
 	
 	
-	<select id="salesToday" resultType="SalesToday">
+	<select id="salesDetail" resultType="SalesDetail">
 	WITH T_ORDER AS (
 	    SELECT * FROM (
-	        SELECT ORDER_NUM, STORE_ID, ORDER_DATE, TOTAL_PRICE FROM BM_ORDER_USER
+	        SELECT ORDER_NUM, STORE_ID, ORDER_DATE, TOTAL_PRICE, DELEVERY_STATUS FROM BM_ORDER_USER
 	        UNION ALL
-	        SELECT ORDER_NUM, STORE_ID, ORDER_DATE, TOTAL_PRICE FROM BM_ORDER_NON_USER
+	        SELECT ORDER_NUM, STORE_ID, ORDER_DATE, TOTAL_PRICE, DELEVERY_STATUS FROM BM_ORDER_NON_USER
 	    )
-	    WHERE   TO_CHAR(ORDER_DATE, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD')
-	    AND     STORE_ID = #{storeId }
+	    WHERE     STORE_ID = #{storeId }
+	    AND   	  DELEVERY_STATUS = '배달 완료'
+	    <if test="date == null">
+	    AND   TO_CHAR(ORDER_DATE, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD')
+	    </if>
+	    
+	    <if test="date != null">
+	    AND   TO_CHAR(ORDER_DATE, 'YYYY-MM-DD') = #{date }
+	    </if>
+	    
 	),
 	T_DETAIL AS (
 	    SELECT  ORDER_NUM, 
@@ -288,38 +296,85 @@
 	</select>
 	
 	
-	<select id="salesMonth" resultType="Sales">
-	SELECT	ORDER_DATE
-	   		,SUM(TOTAL_PRICE) TOTAL
-    FROM 	(SELECT		OU.ORDER_NUM
-        				,TO_CHAR(OU.ORDER_DATE, 'YYYY-MM-DD') ORDER_DATE
-        				,OU.TOTAL_PRICE
-    		FROM		BM_ORDER_USER OU
-	    	LEFT JOIN	BM_ORDER_DETAIL_USER OUD
-	    	ON			OU.ORDER_NUM = OUD.ORDER_NUM
-    UNION ALL
-	    	SELECT		ONU.ORDER_NUM
-	        			,TO_CHAR(ONU.ORDER_DATE, 'YYYY-MM-DD') ORDER_DATE
-	        			,ONU.TOTAL_PRICE
-	    	FROM		BM_ORDER_NON_USER ONU
-	    	LEFT JOIN	BM_ORDER_DETAIL_NON_USER ONUD
-	    	ON			ONU.ORDER_NUM = ONUD.ORDER_NUM
-	    	) 
-	WHERE 
-		<if test="time.equals('month') and month == null">
-   		ORDER_DATE BETWEEN TRUNC(SYSDATE, 'MM') AND LAST_DAY(SYSDATE)
-		</if>
-		
-		<if test="time.equals('month') and month != null">
-		ORDER_DATE BETWEEN TRUNC(TO_DATE('${month}-1'), 'MM') AND LAST_DAY('${month}-1')	
-		</if>
-		
-		<if test="time.equals('week')">
-		ORDER_DATE BETWEEN TRUNC(SYSDATE, 'IW') AND TRUNC(SYSDATE+7, 'IW')-1	
-		</if>
-		
-	GROUP BY ROLLUP(ORDER_DATE)
-	ORDER BY ORDER_DATE
+	
+	
+	<select id="sales" resultType="Sales">
+	
+	WITH T_ORDER AS (
+	    SELECT  STORE_ID
+	    		,TO_DATE(ORDER_DATE) ORDER_DATE
+                ,TOTAL_PRICE
+        FROM (
+	        SELECT TO_CHAR(ORDER_DATE, 'YYYY/MM/DD') ORDER_DATE, STORE_ID, TOTAL_PRICE, DELEVERY_STATUS FROM BM_ORDER_USER
+	        UNION ALL
+	        SELECT TO_CHAR(ORDER_DATE, 'YYYY/MM/DD') ORDER_DATE, STORE_ID, TOTAL_PRICE, DELEVERY_STATUS FROM BM_ORDER_NON_USER
+	    )
+	    WHERE	STORE_ID = #{storeId }
+	    AND   	DELEVERY_STATUS = '배달 완료'
+	    <choose>
+	    	<when test="term == 'year'">
+	    	AND   ORDER_DATE BETWEEN TRUNC(TO_DATE(#{date }), 'YYYY') AND LAST_DAY(#{date })
+	    	</when>
+	    
+	   		<otherwise>
+	    	AND   ORDER_DATE BETWEEN TRUNC(TO_DATE(#{date }), 'MM') AND LAST_DAY(#{date })
+	    	</otherwise>
+	    </choose>
+	)
+	<if test="term == 'month'">
+    SELECT	CAL.ORDER_DATE
+    		,SUM(O.TOTAL_PRICE) TOTAL 
+ 	FROM (
+ 		
+        SELECT FIRST_DAY + LEVEL -1 ORDER_DATE
+        FROM    (
+            SELECT TRUNC(TO_DATE(#{date }), 'MM') FIRST_DAY FROM DUAL
+        ) 
+        CONNECT BY FIRST_DAY + LEVEL -1 <![CDATA[ <= ]]> LAST_DAY(#{date })
+    ) CAL
+    LEFT JOIN   T_ORDER O
+    ON          CAL.ORDER_DATE = O.ORDER_DATE
+    GROUP BY ROLLUP(CAL.ORDER_DATE) 
+    ORDER BY ORDER_DATE
+	</if>
+	
+	
+	<if test="term == 'week'">
+    SELECT	CAL.ORDER_DATE
+    		,SUM(O.TOTAL_PRICE) TOTAL 
+ 	FROM (
+ 		
+        SELECT FIRST_DAY + LEVEL -1 ORDER_DATE
+        FROM    (
+            SELECT TRUNC(SYSDATE, 'IW') FIRST_DAY FROM DUAL
+        ) 
+        CONNECT BY FIRST_DAY + LEVEL <![CDATA[ <= ]]> FIRST_DAY + 7 
+    ) CAL
+    LEFT JOIN   T_ORDER O
+    ON          CAL.ORDER_DATE = O.ORDER_DATE
+    GROUP BY ROLLUP(CAL.ORDER_DATE) 
+    ORDER BY ORDER_DATE
+   	</if>
+        
+        
+        
+        
+	<if test="term == 'year'">
+    SELECT	TRUNC(CAL.ORDER_DATE, 'MM') ORDER_DATE
+    		,SUM(O.TOTAL_PRICE) TOTAL 
+ 	FROM (
+       SELECT ADD_MONTHS(FIRST_DAY, LEVEL -1) ORDER_DATE
+        FROM    (
+            SELECT TRUNC(SYSDATE, 'YYYY') FIRST_DAY FROM DUAL
+        ) 
+        CONNECT BY LEVEL <![CDATA[ <= ]]> 12
+    ) CAL
+    LEFT JOIN   T_ORDER O
+    ON          CAL.ORDER_DATE = TRUNC(O.ORDER_DATE, 'MM')
+    GROUP BY ROLLUP(TRUNC(CAL.ORDER_DATE, 'MM')) 
+    ORDER BY ORDER_DATE
+    </if>
+	
 	</select>
 	
 	

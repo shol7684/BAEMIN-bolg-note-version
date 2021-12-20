@@ -1,5 +1,6 @@
 package com.baemin.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -33,8 +34,10 @@ public interface AdminService {
 
 	void orderComplete(String orderNum, long userId);
 
-	List<Sales> sales(String time, String month);
+	Map<String, Object> salesDetail(long storeId, String date, String sort);
+	
+	List<Sales> sales(long storeId, String date, String term);
 
-	Map<String, Object> salseToday(long storeId);
+
 
 }

@@ -194,7 +194,7 @@ function orderList(){
 		}	
 	})
 	.done(function(result){
-		
+		console.log(result);
 		const count1 = result.orderList[0].count1;
 		const count2 = result.orderList[0].count2;
 		
@@ -437,6 +437,9 @@ $(document).on("click", ".complete", function(){
 	const orderIndex = $(this).parents("li").index();
 	const orderInfo = listInfo.getOrderList(orderIndex);
 	const orderNum = orderInfo.orderNum;
+	console.log(orderNum);
+	console.log(orderIndex);
+	
 	const userId =  orderInfo.userId;
 	const data = {
 		userId : userId,

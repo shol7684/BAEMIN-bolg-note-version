@@ -26,7 +26,7 @@ main {
 }
 
 .category::-webkit-scrollbar {
-    background: none;
+    display: none;
 }
 
 .category li {
@@ -105,10 +105,6 @@ main {
 
 
 @media (max-width:767px) {
-	
-	.container {
-	    width: 99%;
-	}
 	
 	.category {
 		padding: 10px 0;

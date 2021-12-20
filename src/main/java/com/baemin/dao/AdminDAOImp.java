@@ -12,7 +12,7 @@ import com.baemin.dto.Food;
 import com.baemin.dto.OrderCancle;
 import com.baemin.dto.OrderList;
 import com.baemin.dto.Sales;
-import com.baemin.dto.SalesToday;
+import com.baemin.dto.SalesDetail;
 import com.baemin.dto.Store;
 
 @Repository
@@ -113,21 +113,21 @@ public class AdminDAOImp implements AdminDAO {
 	}
 
 
-	
 	@Override
-	public List<Sales> sales(String time, String month) {
+	public List<SalesDetail> salesDetail(long storeId, String date) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("time", time);
-		map.put("month", month);
-		return sql.selectList("admin.salesMonth", map);
+		map.put("storeId", storeId);
+		map.put("date", date);
+		
+		return sql.selectList("admin.salesDetail", map);
 	}
+	
 
+	
 	@Override
-	public List<SalesToday> salesToday(long storeId) {
-		return sql.selectList("admin.salesToday", storeId);
+	public List<Sales> sales(Map<String, Object> map) {
+		return sql.selectList("admin.sales", map);
 	}
-	
-	
 	
 	
 }

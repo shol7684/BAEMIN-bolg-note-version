@@ -3,6 +3,7 @@ package com.baemin.controller;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,21 +151,24 @@ public class AdminController {
 	@IsMyStore
 	@GetMapping("/admin/management/orderList")
 	public ResponseEntity<Map<String, Object>> orderList(long storeId, String list, int page) {
+		System.out.printf("가게번호 : %d, 목록 : %s , 페이지 : %d%n",storeId, list, page);
+		
 		List<OrderList> orderList = adminService.order(storeId, list, page);
 		
 		Map<String, Object> map = new HashMap<>();
 		List<List<Cart>> menuList = new ArrayList<>();
-		System.out.println("orderList = " + orderList) ;
-		System.out.println(orderList.size());
 		
 		if(orderList.size() != 0 && orderList.get(0).getFoodInfo() != null) {
 			for (int i=0;i<orderList.size();i++) {
+				System.out.println("실행");
 				menuList.add(FoodInfoFromJson.foodInfoFromJson(orderList.get(i).getFoodInfo()));
 			}
 		}
 		
 		map.put("orderList", orderList);
 		map.put("cartList", menuList);
+		
+		
 		return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
 	}
 	
@@ -193,32 +197,39 @@ public class AdminController {
 	
 	
 	@IsMyStore
-	@GetMapping("/admin/management/sales/{storeId}")
-	public String sales(@PathVariable long storeId) {
+	@GetMapping("/admin/management/sales/{id}")
+	public String sales(@PathVariable long id) {
 		return "admin/sales";
 	}
 	
 	
 	
 	@IsMyStore
-	@GetMapping("/admin/management/salesToday")
-	public ResponseEntity<Map<String, Object>> salesDetail(long storeId){
-		System.out.println("오늘 매출");
-		Map<String, Object> salseToday = adminService.salseToday(storeId);
+	@GetMapping("/admin/management/salesDetail")
+	public ResponseEntity<Map<String, Object>> salesDetail(long storeId, String date, String sort){
+		System.out.println("매출 상세");
+		
+		System.out.printf("가게 번호 : %d, 날짜 : %s, 정렬 : %s%n ", storeId, date, sort);
+		Map<String, Object> salseToday = adminService.salesDetail(storeId, date, sort);
 		
 		return new ResponseEntity<Map<String, Object>>(salseToday, HttpStatus.OK);
 	}
 	
 	
 	
-	@ResponseBody
-	@GetMapping("/admin/sales")
-	public List<Sales> sales(String time,String month) {
-//		time =
-//		week, month, outerMonth, year
-		List<Sales> sales = adminService.sales(time,month);
-		return sales;
+	@IsMyStore
+	@GetMapping("/admin/management/sales")
+	public ResponseEntity<List<Sales>> sales(long storeId, String date, String term) {
+//		term =
+//		week, month, year
+		
+		List<Sales> sales = adminService.sales(storeId,date, term);
+		return new ResponseEntity<List<Sales>>(sales, HttpStatus.OK);
 	}
+	
+	
+	
+	
 	
 	
 	

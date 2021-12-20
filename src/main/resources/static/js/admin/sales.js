@@ -8,95 +8,99 @@ const storeId = pathArr[pathArr.length-1];
 const dateInput = document.getElementById("date");
 dateInput.valueAsDate = new Date();
 
+// getDetail이 true일때 상세보기 가능
+let getDetail = true;
 
-
-function sales(time,date){
-
-	let title = "";
-	let format = "";
-	let dateArr = [];
+function graphDraw(data, format, title){
+	let html = "";
+	for(i=0;i<data.length-1;i++) {
+		html +=
+		`<li>
+			<span class="sales"></span>
+			<div class="graph" data-date="${data[i].orderDate}"></div>
+			<span class="graph_date">${moment(data[i].orderDate).format(format) }</span>
+		</li>`
+	}
+	$(".graph_box ul").html(html);
 	
-	switch(time) {
-		case "week": {
-			dateArr = getDate(time);
-			title = "이번 주";
-			format = "MM월 DD일";
-			break;
-		} 
-		case "month": {
-			if(!date) {
-				dateArr = getDate(time);
-			} else {
-				dateArr = getDate(time, date);
-			}
-			title = moment(dateArr[0]).format("M") + "월";
-			format = "D";
-			break;
-		} 
-		case "year": {
-			dateArr = getDate(time);
-			title = moment(dateArr[0]).format("YYYY") + "년";
-			format = "MM월"
+	
+	if(!data[data.length-1]) {
+		$("main h1").text(title +"0원");
+		return;
+	}
+		
+	const total = data[data.length-1].total;
+	
+	$("main h1").text(title + total.toLocaleString() + "원");
+	
+	for(i=0;i<data.length-1;i++) {
+		const sum = data[i].total;
+		const avg = sum / total * 100;
+		
+		$(".graph_box li").eq(i).find(".graph").css("height", avg +"%");
+		
+		if(sum != 0){
+			$(".graph_box li").eq(i).find(".sales").text((sum/10000).toFixed(1));
 		}
 	}
+}
+
+
+	
+function sales(term){
+	const date = moment(new Date()).format("YYYY-MM");
+	
+	let title = "";
+	let format = "";
 	const data = {
-		time : time,
-		month : date
+		date : date,
+		storeId : storeId
+	};
+	
+	switch(term) {
+		case "week": {
+			format = "MM월 DD일";
+			data.term = "week";
+			title = "이번 주 총 합계 ";
+			break;
+		} 
+		case "thisMonth": {
+			format = "D";
+			data.term = "month";
+			title = moment(date).format("M") + "월 총 합계 ";
+			break;
+		} 
+		
+		case "month": {
+			format = "D";
+			data.date = $("#date").val();
+			data.term = "month";
+			title = moment(data.date).format("M") + "월 총 합계 ";
+			break;
+		}
+		
+		
+		case "year": {
+			format = "MM월"
+			data.term = "year";
+			title = moment(date).format("YYYY") + "년 총 합계 ";
+			break;
+		}
 	}
 	
 	$.ajax({
-		url: "/admin/sales",
+		url: "/admin/management/sales",
 		type: "GET",
 		data: data
 	})
 	.done(function(result) {
 		console.log(result);
-		let html = "";
 		
-		for(var i=0;i<dateArr.length;i++) {
-			html +=  
-			`<li>
-				<div class="graph">
-					<span class="sales"></span>
-					<span class="graph_date">${moment(dateArr[i]).format(format) }</span>
-				</div>
-			</li>`
-		}
+		graphDraw(result, format, title);
 		
-		$(".graph_box ul").html(html);
-		
-		if(result == "") {
-			$("main h1").text(title +" 총 합계 0원");
-			return;
-		}
-		
-		const total = result[result.length-1]["total"];
-		
-		$("main h1").text(title +" 총 합계 " + total.toLocaleString() + "원");
-		
-		const maxIndex = result.length -1;
-		
-		for(var i=0,j=0;i<dateArr.length;i++) {
-			
-			const dt = moment(dateArr[i]).format(format);
-			const odt = moment(result[j]["orderDate"]).format(format);
-
-			if(dt == odt ) {
-				const sum = result[j]["total"];
-				const avg = sum / total * 100;
-				
-				$(".graph_box li").eq(i).find(".graph").css("height", avg +"%");
-				$(".graph_box li").eq(i).find(".sales").text((sum/10000).toFixed(1));
-				j++;
-				
-				if(maxIndex <= j) {
-					break;
-				}
-			}
-		}
 	})
-	.fail(function(data, textStatus, errorThrown){
-		swal("에러");
+	.fail(function(data){
+		alert("에러");
 	})
 }
 
@@ -104,110 +108,41 @@ function sales(time,date){
 
 
 
-
-function getDate(time, date){
+// 그래프 가로 스크롤
+(function(){
+	let x;
+	let left;
+	let down;
+	
+  	const target = $(".graph_section");
+	    
+	target.mousedown(function(e){
+	  down = true;
+	  x = e.pageX;
+	  left = $(this).scrollLeft();
+	});
+	
+	$(window).mousemove(function(e){
+	  if(down){
+	    var newX = e.pageX;
+	    target.scrollLeft(left - newX + x);
+	  }
+	});
+	
+	$(window).mouseup(function(e){
+		down = false;
+	});
+})();
+  
 		
-	const d = new Date();
-	
-	const year = d.getFullYear();
-	let month = d.getMonth() + 1;
-	const dt = d.getDate();
-	const day =  d.getDay();
-	
-	const dateArr = [];
-	
-	switch(time) {
-		case "week": {
-			let monday = dt-day+1;
-			const lastDate = new Date(year, month, 0).getDate();
-			for(var i=0,j=1;i<7;i++) {
-				if(monday > lastDate) {
-					month++;
-					monday = 1;
-				}
-				if(month > 12) {
-					month = 1;
-				}
-				let yoil = String(monday).padStart("2", 0);
-				dateArr[i] = year + "-" + month + "-" + yoil;
-				monday++; 
-			}
-			break;
-		}
 		
-		case "month": {
-			if(!date) {
-				const lastDate = new Date(year, month, 0).getDate();
-				for(var i=0;i<lastDate;i++) {
-					dateArr[i] = year + "-" + month + "-" + (i+1);
-				}
-				break;
-			} else {
-				date = String(date);
-				const arr = String(date).split("-");
+		
+// 그래프 막대 그리기
+function detailHtml(result){
+	let html = `<div>메뉴</div>
+				<div>수량</div>
+				<div>가격</div>`;
 				
-				const lastDate = new Date(arr[0], arr[1], 0).getDate();
-				for(var i=0;i<lastDate;i++) {
-					dateArr[i] = year + "-" + arr[1] + "-" + (i+1);
-				}
-				break;
-			}
-		}
-		case "year": {
-			for(var i=0;i<12;i++) {
-				dateArr[i] = year + "-" + (i+1) + "-" + 1;
-			}
-			break;
-		}
-	}
-	
-	return dateArr;
-	
-}
-
-
-
-// 기본페이지 주 매출
-sales("week");
-
-// 월 매출
-$(".month_btn").click(function(){
-	sales("month");
-})
-
-// 다른 달 일 매출
-$(".other_month_search").click(function(){
-	const date = $("#date").val();
-	sales("month", date);
-})
-
-// 이번주 매출
-$(".week_btn").click(function(){
-	sales("week");
-})
-
-// 올해 매출
-$(".year_btn").click(function(){
-	sales("year");
-})
-
-
-
-$(".today button").click(function(){
-	$(".detail").fadeToggle(200);
-})
-
-
-
-$.ajax({
-	url: "/admin/management/salesToday",
-	type: "GET",
-	data: {storeId : storeId}
-})
-.done(function(result){
-	$("#today").text(result.total.toLocaleString() +"원");
-	
-	let html = "";
 	for(i=0;i<result.menuList.length;i++) {
 		const menu = result.menuList[i];
 		const option = menu.optionName == null ? "" : "[" + menu.optionName + "]";
@@ -218,14 +153,180 @@ $.ajax({
 			 <div>${menu.totalPrice.toLocaleString()}</div>`;
 	}
 	
-	$(".sales_today_detail").append(html);
+	return html;
+}
+
+
+// 하루 매출 상세보기
+function salesDetail(data, fnc){
+	$.ajax({
+		url: "/admin/management/salesDetail",
+		type: "GET",
+		data: data
+	})
+	.done(function(result){
+		fnc(result);
+		
+	})
+	.fail(function(){
+		alert("에러");
+	})
+}
+
+
+
+
+// 기본페이지 주 매출
+sales("week");
+
+// 월 매출
+$(".month_btn").click(function(){
+	sales("thisMonth");
+	getDetail = true;
+})
+
+// 다른 달 일 매출
+$(".other_month_search").click(function(){
+	sales("month");
+	getDetail = true;
+})
+
+// 이번주 매출
+$(".week_btn").click(function(){
+	sales("week");
+	getDetail = true;
+})
+
+// 올해 매출
+$(".year_btn").click(function(){
+	sales("year");
+	getDetail = false;
+})
+
+
+
+// 오늘 매출 실행함수
+const todayDetail = function(result){
+	$("#today").text(result.total.toLocaleString() +"원");
+	const html = detailHtml(result);
 	
+	$(".today_detail .sales_today_detail").html(html);
+}
+
+// 오늘 매출 보기
+salesDetail({storeId : storeId}, todayDetail);
+
+
+// 오늘 매출 상세 표시
+$(".today button").click(function(){
+	$(".today_detail").fadeToggle(200);
+});
+
+
+// 이름순 정렬
+$(".today_detail .sort_name").click(function(){
+	const data ={
+		storeId : storeId, 
+	};
 	
+	if($(this).hasClass("reverse")) {
+		$(this).removeClass("reverse");
+		data.sort = "nameR";
+	} else {
+		$(this).addClass("reverse");
+		data.sort = "name";
+	}
+	
+	salesDetail(data, todayDetail);
+})
+
+
+// 가격순 정렬
+$(".today_detail .sort_price").click(function(){
+	const data ={
+		storeId : storeId, 
+	};
+	
+	if($(this).hasClass("reverse")) {
+		$(this).removeClass("reverse");
+		data.sort = "priceR";
+		
+	} else {
+		$(this).addClass("reverse");
+		data.sort = "price";
+	}
+	
+	salesDetail(data, todayDetail);
+})
+
+
+
+const detail = function(result) {
+	const html = detailHtml(result);
+	console.log(result);
+	console.log(123123);
+	$(".other_detail .sales_today_detail").html(html);
+}
+
+
+
+
+// 그래프 막대 클릭
+$(document).on("click", ".graph",  function(){
+	if(getDetail) {
+		const date = $(this).data("date");
+		const data ={storeId : storeId, date : date};
+		
+		salesDetail(data, function(result) {
+			$(".other_detail").show();
+			const offset = $(".other_detail").offset().top /2;
+			$("html").animate({ scrollTop: offset }, 400);
+		
+			const html = detailHtml(result);
+			$(".other_detail .sales_today_detail").html(html);
+			$("#other_detail_date").text(date);
+		});
+	}
+})
+
+// 다른날 상세보기 이름순 정렬 (그래프클릭)
+$(".other_detail .sort_name").click(function(){
+	const data ={
+		storeId : storeId, 
+	};
+	
+	if($(this).hasClass("reverse")) {
+		$(this).removeClass("reverse");
+		data.sort = "nameR";
+	} else {
+		$(this).addClass("reverse");
+		data.sort = "name";
+	}
+	
+	salesDetail(data, detail);
 	
 })
-.fail(function(){
+
+// 다른날 상세보기 가격순 정렬 (그래프클릭)
+$(".other_detail .sort_price").click(function(){
+	const data ={
+		storeId : storeId, 
+	};
 	
+	if($(this).hasClass("reverse")) {
+		$(this).removeClass("reverse");
+		data.sort = "priceR";
+		
+	} else {
+		$(this).addClass("reverse");
+		data.sort = "price";
+	}
+	
+	salesDetail(data, detail);
 })
+
+
+
 
 
 

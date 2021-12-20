@@ -18,6 +18,12 @@ section {
 	margin-bottom: 20px;
 }
 
+section.detail {
+	display: none;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
 .today {
 	display: flex;
 	justify-content: space-between;	
@@ -32,6 +38,8 @@ section {
 .sales_today_detail_title {
 	margin-bottom: 5px; 
 	font-weight: 500;
+	display: flex;
+	justify-content: space-between;
 }
 
 .sales_today_detail {
@@ -50,10 +58,17 @@ section {
 }
 
 
+section.graph_section {
+	overflow-x: auto;	
+}
+
+section.graph_section::-webkit-scrollbar {
+    display: none;
+}
 
 
 .box {
-	padding-bottom: 30px;	
+	min-width: 650px;
 }
 
 
@@ -114,24 +129,30 @@ main .graph_box ul li {
 }
 
 main .graph_box .graph {
-	width: 20%;
-	height: 3px;
+	width: 30%;
+	min-height: 3px;
 	background: green;
 	z-index: 1;
 	border-radius: 5px 5px 0 0;
 	position: relative;
+	transition: 0.1s;
+	cursor: pointer;
 }
 
-main .graph_box .graph .sales {
-	font-size: 1.2rem;
+main .graph_box .graph:hover {
+    transform: scaleX(1.2);
+    background: red;
+}
+
+main .graph_box .sales {
+	font-size: 1.15rem;
+}
+
+main .graph_box .graph_date {
+	font-size: 1.15rem;
 }
 
 
-main .graph_box .graph .graph_date {
-	position: absolute;
-	bottom: -30px;
-	font-size: 1.2rem;
-}
 
 @media ( max-width :1250px) {
 	#tab {
@@ -173,8 +194,5 @@ main .graph_box .graph .graph_date {
 		width: 100%;
 	}
 	
-	main .graph_box ul li .graph_date {
-		display: none;
-	}
 	
 }

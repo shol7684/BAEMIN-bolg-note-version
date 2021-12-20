@@ -3,7 +3,7 @@ package com.baemin.dto;
 import lombok.Data;
 
 @Data
-public class SalesToday {
+public class SalesDetail {
 	int totalPrice;
 	String foodInfo;
 }
