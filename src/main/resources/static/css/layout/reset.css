@@ -38,6 +38,16 @@ input[type="number"]::-webkit-inner-spin-button
 	text-align: center;
 }
 
+.swal-text {
+	 font-size: 1.6rem;
+}
+
+
+.swal-button {
+    font-weight: normal;
+    font-size: 1.4rem;
+}
+
 .swal-button.swal-button--confirm {
 	background: #2AC1BC;
 	color: #fff;

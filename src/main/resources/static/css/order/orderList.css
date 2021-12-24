@@ -1,3 +1,5 @@
+@charset "UTF-8";
+
 body {
 	background: #F6F6F6;
 }
@@ -91,95 +93,6 @@ main ul .order_box {
 
 
 
-/* ------------리뷰 쓰기 모달-------------- */
-.modal  .modal_box {
-	height: calc(100% - 80px);
-}
-
-.modal form {
-	display: inline;
-}
-
-.modal .score_box {
-	width: 80%;
-	margin: 0 auto;
-	text-align: center;
-	padding: 20px;
-}
-.modal .score_box i {
-	font-size: 22px;
-}
-
-.modal .score_box .fas {
-	color: gold;
-}
-
-.modal .review_text {
-	margin: 0 auto;
-	width: 90%;
-}
-
-.modal .review_text textarea {
-	width: 90%;
-	margin: 0 auto 30px auto;
-	display: block;
-	padding: 5px;
-	font-size: 1.6rem;;
-	background: #eee;
-	border: none;
-}
-
-.modal .img_box {
-	width: 80%;
-	margin: 0 auto 50px;
-}
-
-.modal .img {
-	display: none; 
-}
-
-.modal .img_box label {
-	display: inline-block;
-	width: 80px;
-	height: 60px;
-	border: 1px solid #ddd;
-	border-radius: 10px;
-	text-align: center;
-	line-height: 60px;
-}
-
-.modal .img_box div {
-	margin-top: 20px;
-	position: relative;
-	display: none;
-	width: 150px;
-	height: 150px;
-}
-
-.modal .img_box img {
-	width: 100%;
-	height: 100%;
-	border-radius: 10px;
-	object-fit: cover;
-	border: 1px solid #ddd;
-}
-
-.modal .img_close {
-	background: #ccc;
-	position: absolute;
-	top: -10px;
-	right: -10px;
-	width: 25px;
-	height: 25px;
-	color: #fff;
-	border-radius: 50%;
-	border: none;
-}
-
-.modal .review_submit_btn {
-	background: #ddd;
-}
-/* ------------리뷰 쓰기, 수정하기 모달-------------- */
 @media ( max-width :1023px) {
 	.wrap {
 		width: 99%;
@@ -205,15 +118,6 @@ main ul .order_box {
 	#order_list li .review_btn_box button {
 		width: 80px;
 		border-radius: 10px;
-	}
-
-	.modal .review_btn_box {
-		right: 0px;
-		top: 5px
-	}
-	.modal .review_btn_box button {
-		width: 80px;
-		font-size: 10px;
 	}
 }
 

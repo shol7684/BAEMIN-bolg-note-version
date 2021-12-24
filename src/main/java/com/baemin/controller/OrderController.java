@@ -61,7 +61,7 @@ public class OrderController {
 		System.out.println("계산금액 = " + totalPrice + " 실제 계산해야할 금액 = " + orderPriceCheck );
 		
 		if(orderPriceCheck == totalPrice) {
-			orderService.order(cartList, orderInfo, user, session);
+			orderService.order(cartList, orderInfo, user);
 			session.removeAttribute("cartList");
 		}
 

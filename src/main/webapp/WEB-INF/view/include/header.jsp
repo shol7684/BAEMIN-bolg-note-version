@@ -6,6 +6,7 @@
 <body >
 	<!-- <body> -->
 	<header>
+	
 		<div id="header">
 			<a href="/"><img src="/img/baemin.jpg" alt="이미지"> </a>
 			<c:set var="ROLE" value="${SPRING_SECURITY_CONTEXT.authentication.principal.user.role }" />
@@ -43,7 +44,6 @@
 				<div id="menu_bg"></div>
 				
 				 <script>
-				 	console
 				 
 					 $(".menu_tab").click(function(){
 						 const menuTab = $(this);
@@ -81,5 +81,4 @@
 	</header>
 	<!-- 헤더 -->
  
-
 

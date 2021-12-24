@@ -209,7 +209,7 @@
       (SELECT * FROM
           (SELECT ROWNUM RN, T.* FROM (
               SELECT * FROM T_ORDER WHERE DELEVERY_STATUS LIKE '${list }%' ORDER BY ORDER_DATE) T ) 
-       WHERE RN BETWEEN #{firstList } AND #{lastList }
+       WHERE RN BETWEEN 1 AND #{lastList }
        )O       
       ON          ORDER_COUNT.STORE_ID = O.STORE_ID
       LEFT JOIN   T_DETAIL D      
@@ -376,6 +376,8 @@
     </if>
 	
 	</select>
+	
+	
 	
 	
 	

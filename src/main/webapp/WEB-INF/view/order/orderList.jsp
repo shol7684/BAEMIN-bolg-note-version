@@ -3,8 +3,8 @@
 <%@ include file="/WEB-INF/view/include/link.jsp" %>
 	<link rel="stylesheet" href="/css/modal.css" >
 	<link rel="stylesheet" href="/css/layout/nav.css" >
-	<link rel="stylesheet" href="/css/order/orderList.css" >
-    
+	<link rel="stylesheet" href="/css/order/orderList.css">
+    <link rel="stylesheet" href="/css/user/modal_review.css">
 <%@ include file="/WEB-INF/view/include/header.jsp" %>
     
 

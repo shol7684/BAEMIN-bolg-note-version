@@ -2,6 +2,7 @@ $(document).ready(function(){
 
 const pathArr = location.pathname.split("/");
 const storeId = pathArr[pathArr.length-1];
+const listView = 10; // 주문 목록 최대 갯수
 
 $(".move_top").click(function(){
 	$("html").animate({ scrollTop: 0 }, 200);
@@ -37,6 +38,9 @@ const listInfo = (function(){
 	}
 	const nextPage = function(){
 		page++;
+	}
+	const setPage = function(set){
+		page = set;
 	}
 	const nowPage = function(){
 		return page;
@@ -81,12 +85,19 @@ const listInfo = (function(){
 		cartList = [];
 		orderList = [];
 	}
+	const removeCartList = function(index) {
+		cartList.splice(index, 1);
+	}
+	const removeOrderList = function(index) {
+		orderList.splice(index, 1);
+	}
 	
 	return {
 		getNowList : getNowList,
 		setNowList : setNowList,
 		resetPage : resetPage,
 		nextPage : nextPage,
+		setPage : setPage,
 		nowPage : nowPage,
 		getRunNextPage : getRunNextPage,
 		setRunNextPage : setRunNextPage,
@@ -100,7 +111,10 @@ const listInfo = (function(){
 		setCartList : setCartList,
 		concatOrderList : concatOrderList,
 		concatCartList : concatCartList,
-		resetList : resetList
+		resetList : resetList,
+		removeCartList : removeCartList,
+		removeOrderList : removeOrderList,
+		
 	}
 })();
 
@@ -182,7 +196,7 @@ function foodHtml(cart){
 function orderList(){
 	const page = listInfo.nowPage();
 	const list = listInfo.getNowList();
-	listInfo.setRunNextPage(true);
+	// listInfo.setRunNextPage(true);
 	
 	$.ajax({
 		url: "/admin/management/orderList",
@@ -194,7 +208,6 @@ function orderList(){
 		}	
 	})
 	.done(function(result){
-		console.log(result);
 		const count1 = result.orderList[0].count1;
 		const count2 = result.orderList[0].count2;
 		
@@ -205,19 +218,11 @@ function orderList(){
 			
 			
 		const html = htmlWrite(result, list);
-		if(page == 1) {
-			$(".order_list").html(html);	
-			listInfo.setCartList(result.cartList);
-			listInfo.setOrderList(result.orderList);
-		} else {
-			$(".order_list").append(html);
-			listInfo.concatCartList(result.cartList);
-			listInfo.concatOrderList(result.orderList);
-		}
 		
-		if(result.orderList[0].orderNum != null) {
-			listInfo.setRunNextPage(false);
-		} 
+		$(".order_list").html(html);	
+		listInfo.setCartList(result.cartList);
+		listInfo.setOrderList(result.orderList);
+			
 		
 	})
 	.fail(function(data){
@@ -238,7 +243,7 @@ stompClient.connect({}, function() {
 		// 화면에 출력중인 view 갯수 
 		const list = $(".order_list li").length;
 		
-		if(list < 10) {
+		if(list == listInfo.getWaitcount()) {
 			orderList();
 		}
 	});
@@ -246,7 +251,7 @@ stompClient.connect({}, function() {
 
 
 
-
+// 접수대기, 처리 중 목록 클릭
 $(".aside_tab li").click(function(){
 	$(".order_list").html("");
 	$(".aside_tab li").removeClass("active");
@@ -262,16 +267,33 @@ $(".aside_tab li").click(function(){
 
 
 
-
+// 스크롤시 다음 페이지
 $(window).scroll(function(){
 	const winHeight = $(window).height();
 	const docHeight = $(document).height();
 	const top = $(window).scrollTop();
-	if(docHeight <= winHeight + top + 10 ) {
+	
+	if(docHeight <= winHeight + top + 10) {
 		if(!listInfo.getRunNextPage()) {
-			listInfo.nextPage();
+			
+			const list = $(".order_list li").length;
+			if(list == 0) {
+				listInfo.resetPage();
+			} else {
+				if(list == (listView * listInfo.nowPage())) {
+					listInfo.setPage(Math.floor((list - 1) / listView) + 2);
+				}
+			}
 			orderList();
+			listInfo.setRunNextPage(true);
+			
+			setTimeout(function(){
+				listInfo.setRunNextPage(false);
+			},2000);
+			
+			return;
 		}
+		
 	} 
 }) // scroll
 
@@ -280,8 +302,62 @@ orderList();
 
 
 
+function listRefresh(index, count){
+	listInfo.removeCartList(index);
+	listInfo.removeOrderList(index);
+	$(".order_box").eq(index).remove();
+	
+	
+	const list = $(".order_list li").length;
+	if(list == 0) {
+		listInfo.resetPage();
+	} else {
+		listInfo.setPage(Math.floor((list - 1) / listView) + 1);
+	}
+	
+	if(list < count) {
+		console.log("lsit : " +  list + " + count : " + count);
+		orderList();
+	}
+}
 
 
+
+// 주문수락 시 
+function accept(index){
+	const waitCount = listInfo.getWaitcount() - 1;
+	const procCount = listInfo.getProcCount() + 1;
+	$(".wait_count").text(waitCount);
+	$(".processing_count").text(procCount);
+	listInfo.setWaitCount(waitCount);
+	listInfo.setProcCount(procCount);
+	
+	const count = listInfo.getWaitcount();
+	listRefresh(index, count);
+	
+}
+
+// 주문취소 시
+function cancle(index) {
+	const waitCount = listInfo.getWaitcount() - 1;
+	$(".wait_count").text(waitCount);
+	listInfo.setWaitCount(waitCount);
+	
+	const count = listInfo.getWaitcount();
+	listRefresh(index, count);
+}
+
+
+
+// 주문완료 시
+function complete(index) {
+	const procCount = listInfo.getProcCount() - 1;
+	$(".processing_count").text(procCount);
+	listInfo.setProcCount(procCount);
+	
+	const count = listInfo.getProcCount();
+	listRefresh(index, count);
+}
 
 
 // 주문접수 모달 
@@ -299,7 +375,6 @@ $(document).on("click", ".order_accept", function(){
 	const deleveryAddress3 = orderInfo.deleveryAddress3 ? orderInfo.deleveryAddress3 : "";
 	const request = orderInfo.request ? orderInfo.request : ""; 
 	const phone = orderInfo.phone;
-	
 	
 	let food = "";
 	for(i=0;i<foodInfo.length;i++) {
@@ -358,9 +433,11 @@ $(document).on("click", ".order_accept", function(){
 			type: "PATCH"
 		})
 		.done(function(){
-			orderList();
 			swal("주문접수완료");
 			closeModal();
+			accept(orderIndex);
+			
+			
 		})
 		.fail(function(data){
 			errMsg(data);
@@ -414,7 +491,7 @@ $(document).on("click", ".order_accept", function(){
 				data: data
 			})
 			.done(function(){
-				orderList(); 
+				cancle(orderIndex); 
 				swal("취소완료");
 				// 결제 취소하기 추가
 				
@@ -459,7 +536,7 @@ $(document).on("click", ".complete", function(){
 			data: data
 		})
 		.done(function(result){
-			orderList();
+			complete(orderIndex);
 		})
 		.error(function(){
 			swal("에러");

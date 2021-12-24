@@ -78,7 +78,7 @@
 	    		<label for="img2">사진첨부</label>
     			<input type="file" id="img2" class="img" name="file" >
 	    			
-	    		<div>
+	    		<div class="preview_box">
 	    			<img class="preview">
 	    			<button type="button" class="img_close"><i class="fas fa-times"></i></button>
     			</div>

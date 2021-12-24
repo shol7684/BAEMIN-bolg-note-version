@@ -5,13 +5,17 @@ import javax.servlet.http.HttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.baemin.login.LoginService;
 
 public class UserInfoSessionUpdate {
 
-	public static void sessionUpdate(String value, String valueType, LoginService user, HttpSession session) {
-
+	public static void sessionUpdate(String value, String valueType, LoginService user) {
+		ServletRequestAttributes attr = (ServletRequestAttributes)RequestContextHolder.currentRequestAttributes();
+		HttpSession session = attr.getRequest().getSession();
+		
 		LoginService loginService = (LoginService) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
 		if(valueType.equals("nickname")) {

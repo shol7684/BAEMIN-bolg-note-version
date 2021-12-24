@@ -1,6 +1,7 @@
 package com.baemin.aop;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -28,10 +29,12 @@ public class AdminAOP {
 	@Autowired
 	private AdminService adminService;
 	
+//	@Around("@annotation(com.baemin.aop.IsMyStore)")
 	@Around("@annotation(com.baemin.aop.IsMyStore)")
 		public Object myStore(ProceedingJoinPoint j) throws Throwable   {
 		long storeId = 0;
 		Object[] args = j.getArgs();
+		
 		if(args.length > 0) {
 			Object arg = args[0];
 			
@@ -43,8 +46,17 @@ public class AdminAOP {
 				storeId = ((Food) arg).getStoreId();
 			} 
 		}
+		
+		
 		if(!isMyStore(storeId)) { 
-			System.out.println("aop 에러");
+//			String[] methodInfo = j.getSignature().toLongString().split(" ");
+//			String[] methodLongType = methodInfo[1].split("\\.");
+//			String methodType = methodLongType[methodLongType.length-1];
+//			
+//			if(methodType.equals("String")) {
+//				throw new NullPointerException("널");
+//			}
+			
 			return new ResponseEntity<Object>(HttpStatus.UNAUTHORIZED);
 		}
 		Object returnObj = j.proceed();

@@ -160,7 +160,6 @@ public class AdminController {
 		
 		if(orderList.size() != 0 && orderList.get(0).getFoodInfo() != null) {
 			for (int i=0;i<orderList.size();i++) {
-				System.out.println("실행");
 				menuList.add(FoodInfoFromJson.foodInfoFromJson(orderList.get(i).getFoodInfo()));
 			}
 		}

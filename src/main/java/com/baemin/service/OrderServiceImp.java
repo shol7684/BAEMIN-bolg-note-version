@@ -58,7 +58,7 @@ public class OrderServiceImp implements OrderService {
 	
 	@Transactional
 	@Override
-	public String order(CartList cart, OrderInfo info, LoginService user, HttpSession session) {
+	public String order(CartList cart, OrderInfo info, LoginService user) {
 		Gson gson = new Gson();
 		int total = cart.getCartTotal();
 		
@@ -92,7 +92,7 @@ public class OrderServiceImp implements OrderService {
 			int point = (int)(total * 0.01); 
 			int result = adminDAO.pointUpdate(userId, storeName, point);
 			if(result == 1) {
-				UserInfoSessionUpdate.sessionUpdate(point+"", "point", user, session);
+				UserInfoSessionUpdate.sessionUpdate(point+"", "point", user);
 			}
 		}
 		
@@ -103,7 +103,7 @@ public class OrderServiceImp implements OrderService {
 			int result = adminDAO.pointUpdate(userId, storeName, usedPoint);
 			
 			if(result == 1) {
-				UserInfoSessionUpdate.sessionUpdate(usedPoint+"", "point", user, session);
+				UserInfoSessionUpdate.sessionUpdate(usedPoint+"", "point", user);
 			}
 		}
 		return null;

@@ -23,14 +23,12 @@ public class LoginSuccess implements AuthenticationSuccessHandler {
 		
 		String referer = (String) session.getAttribute("referer");
 		
-		System.out.println("referer = " + referer);
-		
 		if(referer != null) {
-			String domain = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();
+			String domain = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort() + "/";
 			String uri = referer.replace(domain, "");
-			System.out.println("uri = " + uri);
-			if(uri.equals("/order")) {
-				response.sendRedirect(uri);
+			
+			if(uri.split("/")[0].equals("order")) {
+				response.sendRedirect("/" + uri);
 				return;
 			}
 		}

@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -112,7 +114,7 @@ public class StoreController {
 	
 	// 리뷰 수정
 	@PostMapping("/store/reviewModify")
-	public String reviewModify(Review review, MultipartFile file, @AuthenticationPrincipal LoginService user) throws IOException {
+	public String reviewModify(Review review, MultipartFile file, @AuthenticationPrincipal LoginService user, HttpServletRequest request) throws IOException {
 		if(!file.isEmpty()){
 			String img = uploadFile.fildUpload(file);
 			review.setReviewImg(img);
@@ -121,8 +123,12 @@ public class StoreController {
 		review.setUserId(userId);
 
 		storeService.reviewModify(review);
+		
+		String domain = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();
+		String referer = request.getHeader("referer");
+		String redirect = referer.replace(domain, ""); 
 
-		return "redirect:/orderList";
+		return "redirect:" + redirect;
 	}
 	
 	
