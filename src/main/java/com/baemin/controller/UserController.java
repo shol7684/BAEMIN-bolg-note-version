@@ -59,7 +59,7 @@ public class UserController {
 	
 	
 	@PostMapping("/join")
-	public String joinProc(@Valid Join join, BindingResult bindingResult, Model model) {
+	public String joinProc(@Valid Join join, Model model, BindingResult bindingResult) {
 		if(bindingResult.hasErrors()) {
 			List<FieldError> list = bindingResult.getFieldErrors();
 			Map<String, String> errorMsg = new HashMap<>();
@@ -137,8 +137,6 @@ public class UserController {
 	
 	@GetMapping("/user/myInfo")
 	public String myInfo() {
-		
-		
 		return "user/myInfo";
 	}
 	

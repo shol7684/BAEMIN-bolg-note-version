@@ -60,5 +60,32 @@ public class MainController {
 		session.setAttribute("BMaddress", addMap);
 	}
 	
+	
+	
+	
+	@GetMapping("/test")
+	public String test(String input) {
+		System.out.println("테스트페이지");
+		System.out.println(input);
+		return "test";
+	}
+	
+	
+	@ResponseBody
+	@GetMapping("/test2")
+	public String test2(String input) {
+		System.out.println(input);
+		
+		
+		
+		return input;
+	}
+	
+	
+	
+	
+	
+	
+	
 }
 

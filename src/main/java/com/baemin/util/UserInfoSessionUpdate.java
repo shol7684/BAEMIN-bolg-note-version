@@ -14,7 +14,6 @@ public class UserInfoSessionUpdate {
 
 	public static void sessionUpdate(String value, String valueType, LoginService user) {
 		ServletRequestAttributes attr = (ServletRequestAttributes)RequestContextHolder.currentRequestAttributes();
-		HttpSession session = attr.getRequest().getSession();
 		
 		LoginService loginService = (LoginService) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		
@@ -28,11 +27,8 @@ public class UserInfoSessionUpdate {
 			int point = loginService.getUser().getPoint() + Integer.parseInt(value);
 			loginService.getUser().setPoint(point);
 		}
-
-		SecurityContext sc = SecurityContextHolder.getContext();
-
-		sc.setAuthentication(new UsernamePasswordAuthenticationToken(loginService, null, user.getAuthorities()));
-		
-		session.setAttribute("SPRING_SECURITY_CONTEXT", sc);
+		else if(valueType.equals("phone")) {
+			loginService.getUser().setPhone(value);
+		}
 	}
 }

@@ -23,5 +23,11 @@ public interface UserService {
 
 	void deleteReview(long id, String orderNum);
 
-	void modifyInfo(long userId, String valueType, String value);
+	void modifyInfo(String username, String valueType, String value);
+
+	List<String> findId(String email);
+
+	boolean emailCheck(String username, String email);
+
+	boolean phoneCheck(String username, String phone);
 }

@@ -25,5 +25,11 @@ public interface UserDAO {
 
 	void modifyInfo(Map<String, Object> map);
 
+	List<String> findId(String email);
+
+	String emailCheck(Map<String, Object> map);
+
+	String phoneCheck(Map<String, Object> map);
+
 
 }

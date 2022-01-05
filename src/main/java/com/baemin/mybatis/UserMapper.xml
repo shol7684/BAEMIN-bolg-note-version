@@ -140,11 +140,41 @@
 			PHONE = #{value }		
 		</if>
 		
-		
-		WHERE	ID = #{userId } 
-		 
-		
+		WHERE	USERNAME = #{username } 
 	</update>
+	
+	
+	
+	<select id="findId" resultType="String">
+		SELECT	USERNAME
+		FROM	BM_USER
+		WHERE	EMAIL = #{email }
+	</select>
+	
+	
+	<select id="emailCheck" resultType="String">
+		SELECT	1 result 
+		FROM 	DUAL 
+		WHERE EXISTS(
+			SELECT	1 
+			FROM 	BM_USER 
+			WHERE 	USERNAME = #{username } 
+			AND 	EMAIL = #{email }
+		)
+	</select>
+	
+	
+	<select id="phoneCheck" resultType="String">
+		SELECT	1 result 
+		FROM 	DUAL 
+		WHERE EXISTS(
+			SELECT	1 
+			FROM 	BM_USER 
+			WHERE 	USERNAME = #{username } 
+			AND 	PHONE = #{phone }
+		)
+	</select>
+	
 	
 	
 </mapper>

@@ -71,7 +71,21 @@ public class UserDAOImp implements UserDAO {
 	@Override
 	public void modifyInfo(Map<String, Object> map) {
 		sql.update("user.modifyInfo", map);
-		
+	}
+
+	@Override
+	public List<String> findId(String email) {
+		return sql.selectList("user.findId", email);
+	}
+
+	@Override
+	public String emailCheck(Map<String, Object> map) {
+		return sql.selectOne("user.emailCheck", map);
+	}
+
+	@Override
+	public String phoneCheck(Map<String, Object> map) {
+		return sql.selectOne("user.phoneCheck", map);
 	}
 
 

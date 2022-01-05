@@ -89,12 +89,45 @@ public class UserServiceImp implements UserService {
 
 
 	@Override
-	public void modifyInfo(long userId, String valueType, String value) {
+	public void modifyInfo(String username, String valueType, String value) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("userId", userId);
+		map.put("username", username);
 		map.put("valueType", valueType);
 		map.put("value", value);
 		userDAO.modifyInfo(map);
+	}
+
+
+	@Override
+	public List<String> findId(String email) {
+		return userDAO.findId(email);
+	}
+
+
+	@Override
+	public boolean emailCheck(String username, String email) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("username", username);
+		map.put("email", email);
+		String result = userDAO.emailCheck(map);
+		if("1".equals(result)) {
+			return true;
+		}
+		return false;
+	}
+
+
+	@Override
+	public boolean phoneCheck(String username, String phone) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("username", username);
+		map.put("phone", phone);
+		System.out.println(map);
+		String result = userDAO.phoneCheck(map);
+		if("1".equals(result)) {
+			return true;
+		}
+		return false;
 	}
 
 	

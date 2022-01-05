@@ -55,7 +55,6 @@
                     </c:forEach>
                 </ul>
             </div>
-
         </div>
     </main>
      <!-- 콘텐츠 -->

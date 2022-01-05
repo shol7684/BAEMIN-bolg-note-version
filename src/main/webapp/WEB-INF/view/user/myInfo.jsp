@@ -67,7 +67,7 @@
 		            		<input type="text" class="phone_auth_num" name="authNum" required placeholder="인증번호 입력">
 		            		<span class="timer_box">
 		            			<span>남은시간</span>
-		            			<span class="timer">100</span>
+		            			<span class="timer"></span>
 		            		</span>
 		            	</div>
 		            	
@@ -83,19 +83,17 @@
 						<div class="auth_num_box">
 							<button type="button" class="phone_auth_btn">인증</button>
 						</div>
-		           	</div>	
+		           	</div>
+		           	
 				</div>
 			</div>
-	
 	    </main>
-    
     </div>
     
     
    	<%@ include file="/WEB-INF/view/include/nav.jsp" %>
 	<%@ include file="/WEB-INF/view/include/footer.jsp" %>
 	
-	<script type="text/javascript" src="/js/util/util.js" ></script>
 	<script type="text/javascript" src="/js/user/myInfo.js" ></script>
 
     

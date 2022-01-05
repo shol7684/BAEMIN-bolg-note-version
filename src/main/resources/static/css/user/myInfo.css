@@ -90,6 +90,10 @@ main {
 	position: relative;
 }
 
+.auth_num_box {
+	display: none;	
+}
+
 .input_box .timer_box {
 	position: absolute;
 	left: 0;
