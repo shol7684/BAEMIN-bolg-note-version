@@ -470,6 +470,8 @@ $(document).on("click", ".order_accept", function(){
 			const usedPoint = orderInfo.usedPoint;
 			const deleveryTip = orderInfo.deleveryTip;
 			
+			console.log(impUid);
+			
 			if(!cancleReason) {
 				swal('주문거부 사유를 선택해주세요');
 				return;

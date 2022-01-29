@@ -23,7 +23,7 @@ import com.baemin.dto.OrderInfo;
 import com.baemin.dto.OrderList;
 import com.baemin.login.LoginService;
 import com.baemin.service.OrderService;
-import com.baemin.util.CreateOrderNum;
+import com.baemin.service.PaymentService;
 import com.baemin.util.FoodInfoFromJson;
 import com.baemin.util.Page;
 
@@ -33,32 +33,33 @@ public class OrderController {
 	@Autowired
 	private OrderService orderService;
 	
+	@Autowired
+	private PaymentService paymentService;
+	
 	
 	@GetMapping("/order/{storeId}")
 	public String order(@PathVariable long storeId ,HttpSession session, Model model, @AuthenticationPrincipal LoginService user) {
-
+		
+		// 장바구니 없거나 다른가게일때 뒤로가기 구현
 		CartList cartList = (CartList) session.getAttribute("cartList");
 		model.addAttribute("cartList", cartList);
 
 		if (user != null) {
 			model.addAttribute("user", user.getUser());
 		}
-		String orderNum = CreateOrderNum.createOrderNum();
-		model.addAttribute("orderNum", orderNum);
 		return "order/order";
 	}
 	
 	
-	
-	@ResponseBody
+	// 현장에서 결제
 	@PostMapping("/order/payment-cash")
 	public ResponseEntity<String> payment(HttpSession session, OrderInfo orderInfo, long totalPrice, @AuthenticationPrincipal LoginService user) throws IOException {
 		
 		CartList cartList = (CartList) session.getAttribute("cartList");
-		
+		// 실제 계산 금액 가져오기
 		long orderPriceCheck = orderService.orderPriceCheck(cartList);
 		
-		System.out.println("계산금액 = " + totalPrice + " 실제 계산해야할 금액 = " + orderPriceCheck );
+//		System.out.println("계산금액 = " + totalPrice + " 실제 계산해야할 금액 = " + orderPriceCheck );
 		
 		if(orderPriceCheck == totalPrice) {
 			orderService.order(cartList, orderInfo, user);
@@ -67,6 +68,63 @@ public class OrderController {
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	
+	
+	// 카드 결제 성공 후
+	@PostMapping("/order/payment/complete")
+	public ResponseEntity<String> paymentComplete(HttpSession session, OrderInfo orderInfo, long totalPrice, @AuthenticationPrincipal LoginService user) throws IOException {
+		
+		String token = paymentService.getToken();
+		
+		System.out.println("토큰 : " + token);
+		// 결제 완료된 금액
+		int amount = paymentService.paymentInfo(orderInfo.getImpUid(), token);
+		
+		try {
+			// 주문 시 사용한 포인트
+			int usedPoint = orderInfo.getUsedPoint();
+			
+			if (user != null) {
+				int point = user.getUser().getPoint();
+				
+				// 사용된 포인트가 유저의 포인트보다 많을 때
+				if (point < usedPoint) {
+					paymentService.payMentCancle(token, orderInfo.getImpUid(), amount, "유저 포인트 오류");
+					return new ResponseEntity<String>("유저 포인트 오류", HttpStatus.BAD_REQUEST);
+				}
+
+			} else {
+				// 로그인 하지않았는데 포인트사용 되었을 때
+				if (usedPoint != 0) {
+					paymentService.payMentCancle(token, orderInfo.getImpUid(), amount, "비회원 포인트사용 오류");
+					return new ResponseEntity<String>("비회원 포인트 사용 오류", HttpStatus.BAD_REQUEST);
+				}
+			}
+			
+			CartList cartList = (CartList) session.getAttribute("cartList");
+			// 실제 계산 금액 가져오기
+			long orderPriceCheck = orderService.orderPriceCheck(cartList)  - usedPoint;
+			
+			// 계산 된 금액과 실제 금액이 다를 때
+			if (orderPriceCheck != amount) {
+				paymentService.payMentCancle(token, orderInfo.getImpUid(), amount, "결제 금액 오류");
+				return new ResponseEntity<String>("결제 금액 오류, 결제 취소", HttpStatus.BAD_REQUEST);
+			}
+			
+			orderService.order(cartList, orderInfo, user);
+			session.removeAttribute("cartList");
+			
+			return new ResponseEntity<>("주문이 완료되었습니다", HttpStatus.OK);
+			
+		} catch (Exception e) {
+			paymentService.payMentCancle(token, orderInfo.getImpUid(), amount, "결제 에러");
+			return new ResponseEntity<String>("결제 에러", HttpStatus.BAD_REQUEST);
+		}
+		
+		
+	}	
+	
+	
 	
 	
 	

@@ -42,4 +42,6 @@ public class OrderList {
 	private int count1;	// 대기중 갯수
 	private int count2;	// 처리중 갯수
 	
+	private String impUid;
+	
 }

@@ -3,10 +3,6 @@
 <%@ include file="/WEB-INF/view/include/link.jsp" %>
 <!-- <link rel="stylesheet" href="/css/layout/nav.css"> -->
 <link rel="stylesheet" href="/css/order/order.css">
-<!-- sock js -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
-<!-- STOMP -->
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
 <%@ include file="/WEB-INF/view/include/header.jsp" %>
 	
@@ -166,7 +162,6 @@
 			
 			<input type="hidden" value="${cartList.cartTotal + cartList.deleveryTip}" name="total" id="total"> 
 			<input type="hidden" value="${cartList.deleveryTip }" name="deleveryTip" id="delevery_tip"> 
-			<input type="hidden" value="${orderNum }" id="order_num">
 			
 			<input type="button" value="주문하기" class="order_btn">
 		</li>
@@ -188,6 +183,14 @@
 	<!-- 푸터 -->
 	<%@ include file="/WEB-INF/view/include/footer.jsp" %>
 	<!-- 푸터 -->
+	
+	<!-- sock js -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+	<!-- STOMP -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+	<!-- iamport.payment.js -->
+  	<script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.1.8.js"></script>
+	
 	
 	<script type="text/javascript" src="/js/order/order.js" ></script>
 </body>

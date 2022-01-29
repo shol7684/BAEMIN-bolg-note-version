@@ -167,6 +167,9 @@ public class AdminController {
 		map.put("orderList", orderList);
 		map.put("cartList", menuList);
 		
+		for(int i=0;i<orderList.size();i++) {
+			System.out.println(orderList.get(i));
+		}
 		
 		return new ResponseEntity<Map<String, Object>>(map, HttpStatus.OK);
 	}
@@ -182,7 +185,7 @@ public class AdminController {
 	
 	
 	@PatchMapping("/admin/management/orderCancle")
-	public ResponseEntity<String> orderCancle(OrderCancle orderCancle) {
+	public ResponseEntity<String> orderCancle(OrderCancle orderCancle) throws IOException {
 		adminService.orderCancle(orderCancle);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}

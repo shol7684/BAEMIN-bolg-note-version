@@ -54,7 +54,8 @@
 			    ,DELEVERY_ADDRESS3
 			    ,TOTAL_PRICE 
 			    ,USED_POINT 
-			    ,REQUEST 
+			    ,REQUEST
+			    ,IMP_UID 
 		    ) VALUES (
 			    #{orderNum }
 			    ,#{storeId }
@@ -67,6 +68,7 @@
 			    ,#{totalPrice } 
 			    ,#{usedPoint } 
 			    ,#{request } 
+			    ,#{impUid }
 		    )
 	</insert>
 	

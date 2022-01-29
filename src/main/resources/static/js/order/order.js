@@ -50,14 +50,25 @@ function priceModify(cartList){
 }
 
 
-
+// 주문번호 만들기
+function createOrderNum(){
+	const date = new Date();
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const day = String(date.getDate()).padStart(2, "0");
+	
+	let orderNum = year + month + day;
+	for(let i=0;i<10;i++) {
+		orderNum += Math.floor(Math.random() * 8);	
+	}
+	return orderNum;
+}
 
 
 function payment(){
-	
 	const data = {
 		payMethod : $("input[type='radio']:checked").val(),
-		orderNum : $("#order_num").val(),
+		orderNum : createOrderNum(),
 		name : $(".order_info li").eq(0).find(".food_name").text(),
 		amount : Number($("#total").val()) - Number($(".point_input").val()),
 		phone : $("input[name='phone']").val(),
@@ -88,7 +99,43 @@ function payment(){
 		return;
 	}
 	
-	paymentCash(data);
+	paymentCard(data);
+}
+
+
+// 카드 결제
+function paymentCard(data) {
+	// 모바일로 결제시 이동페이지
+	const pathName = location.pathname;
+	const href = location.href;
+	const m_redirect = href.replaceAll(pathName, "");
+		
+	IMP.init("imp99151903"); 
+		
+	IMP.request_pay({ // param
+		pg: "html5_inicis",
+	  	pay_method: data.payMethod,
+	  	merchant_uid: data.orderNum,
+	  	name: data.name,
+	  	amount: data.amount,
+	   	buyer_email: "",
+	   	buyer_name: "",
+	  	buyer_tel: data.phone,
+	  	buyer_addr: data.deleveryAddress2 + " " + data.deleveryAddress3,
+	  	buyer_postcode: data.deleveryAddress1,
+	  	m_redirect_url: m_redirect, 
+  	}, 
+	function (rsp) { // callback
+		if (rsp.success) {
+         // 결제 성공 시 로직,
+	        data.impUid = rsp.imp_uid;
+	        data.merchant_uid = rsp.merchant_uid;
+	        paymentComplete(data);  
+			
+		} else {
+          // 결제 실패 시 로직,
+		}
+	});
 }
 
 
@@ -96,7 +143,6 @@ function payment(){
 	
 // 현장에서 결제
 function paymentCash(data){
-	
 	$.ajax({
 		url: "/order/payment-cash",
         method: "POST",
@@ -121,7 +167,7 @@ function paymentCash(data){
 }
 
 // 계산 완료
-/*function paymentComplete(data) {
+function paymentComplete(data) {
 	
 	 $.ajax({
 		url: "/order/payment/complete",
@@ -138,12 +184,12 @@ function paymentCash(data){
 			location.replace("/orderList");
 		})
 	}) // done 
-    .fail(function() {
-		alert("에러");
+    .fail(function(result) {
+		alert(result.responseText);
 		location.replace("/");
 	}) 
 }  
-*/
+
 
 
 // 관리자 페이지로 주문요청 메세지

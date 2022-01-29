@@ -1,8 +1,7 @@
 package com.baemin.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,9 @@ public class AdminServiceImp implements AdminService {
 
 	@Autowired
 	private AdminDAO adminDAO;
+	
+	@Autowired
+	private PaymentService paymentService;
 	
 	
 	@Override
@@ -136,7 +138,13 @@ public class AdminServiceImp implements AdminService {
 
 	
 	@Override
-	public void orderCancle(OrderCancle orderCancle) {
+	public void orderCancle(OrderCancle orderCancle) throws IOException {
+		
+		if(!"".equals(orderCancle.getImpUid())) {
+			String token = paymentService.getToken();
+			int amount = paymentService.paymentInfo(orderCancle.getImpUid(), token);
+			paymentService.payMentCancle(token, orderCancle.getImpUid(), amount, orderCancle.getCancleReason());
+		}
 		adminDAO.orderCancle(orderCancle);
 	}
 	
